@@ -310,16 +310,26 @@
             background-color: var(--copy-button-bg);
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 8px 14px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 500;
-            transition: background-color 0.2s;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .copy-btn:hover {
             background-color: #0256b4;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .copy-btn::before {
+            content: "📋";
+            font-size: 16px;
         }
 
         .toast {
@@ -647,7 +657,7 @@
         <div class="results">
             <div class="explanation-box">
                 <p id="explanation-text"></p>
-                <button class="copy-btn" id="copy-btn">Copy</button>
+                <button class="copy-btn" id="copy-btn">Copy Semester 2 Mark</button>
             </div>
         </div>
         
@@ -774,7 +784,7 @@
         </div>
     </div>
     
-    <div class="toast" id="toast">Copied to clipboard!</div>
+    <div class="toast" id="toast">Semester 2 Mark copied to clipboard!</div>
     
     <script>
         // Stepped mark values
@@ -833,8 +843,8 @@
             const overallMark = (plan * 0.3) + (sem2Stepped * 0.7);
             const roundedOverall = Math.round(overallMark);
             
-            // Create detailed explanation
-            const explanation = `Overall Mark: (Semester 1 Plan Mark ${plan} × 0.3) + (Semester 2 (RPMs ${rpmPercentage.toFixed(2)} × 0.1) + (Portfolio ${finalSubmission} × 0.9) = ${sem2Raw.toFixed(2)}%) = ${(plan * 0.3).toFixed(1)} + ${(sem2Stepped * 0.7).toFixed(1)} = <strong>${roundedOverall}</strong>`;
+            // Create detailed explanation with two lines
+            const explanation = `Semester 2 Mark: (RPMs ${rpmPercentage.toFixed(2)} × 0.1) + (Portfolio ${finalSubmission} × 0.9) = ${(rpmPercentage * 0.1).toFixed(1)} + ${(finalSubmission * 0.9).toFixed(1)} = ${sem2Raw.toFixed(2)} (stepped to ${sem2Stepped})<br><br>Overall Mark: (Semester 1 Plan Mark ${plan} × 0.3) + (Semester 2 Mark ${sem2Stepped} × 0.7) = ${(plan * 0.3).toFixed(1)} + ${(sem2Stepped * 0.7).toFixed(1)} = <strong>${roundedOverall}</strong>`;
             
             document.getElementById('explanation-text').innerHTML = explanation;
         }
@@ -922,11 +932,19 @@
         
         // Copy explanation text to clipboard
         function copyExplanation() {
-            const text = document.getElementById('explanation-text').innerText;
+            const fullText = document.getElementById('explanation-text').innerText;
+            // Extract only the Semester 2 Mark line
+            const lines = fullText.split('\n');
+            const semester2Line = lines.find(line => line.startsWith('Semester 2 Mark:'));
+            
+            if (!semester2Line) {
+                alert('Could not find Semester 2 Mark to copy');
+                return;
+            }
             
             // Create a temporary textarea element
             const textarea = document.createElement('textarea');
-            textarea.value = text;
+            textarea.value = semester2Line;
             textarea.style.position = 'fixed';  // Prevent scrolling
             document.body.appendChild(textarea);
             textarea.select();
