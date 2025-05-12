@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMP Grade Calculator</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #24292e;
+            --text-secondary: #586069;
+            --border-color: #e1e4e8;
+            --heading-color: #0366d6;
+            --button-bg: #f1f2f3;
+            --button-border: #e1e4e8;
+            --button-hover: #e2e4e8;
+            --button-active: #0366d6;
+            --button-active-text: white;
+            --results-bg: #f1f8ff;
+            --explanation-bg: #f6fafd;
+            --copy-button-bg: #0366d6;
+            --toast-bg: #24292e;
+            --toast-text: #ffffff;
+            --accordion-bg: #f6f8fa;
+            
+            --semester-border: #dde5ed;
+            --semester-bg: #f8fafd;
+            
+            --first-class-bg: #e6f7ee;
+            --first-class-border: #b7e1c9;
+            --mid-range-bg: #e9f2ff;
+            --mid-range-border: #c2dcff;
+            --fail-bg: #ffede9;
+            --fail-border: #f7c4bc;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+        }
+
+        .header {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin: 0;
+            color: var(--heading-color);
+            font-weight: 600;
+        }
+
+        .semester-box {
+            border: 2px solid var(--semester-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            position: relative;
+            background-color: var(--semester-bg);
+        }
+
+        .semester-title {
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background-color: var(--card-bg);
+            padding: 0 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--heading-color);
+        }
+
+        .rpm-container {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .rpm-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .rpm-label {
+            font-weight: 500;
+            margin-right: 8px;
+            white-space: nowrap;
+        }
+
+        select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+            min-width: 60px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--heading-color);
+            box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
+        }
+
+        .grades-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .grade-category {
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .grade-category.first-class {
+            background-color: var(--first-class-bg);
+            border: 1px solid var(--first-class-border);
+        }
+
+        .grade-category.first-class .mark-button {
+            border-color: var(--first-class-border);
+        }
+
+        .grade-category.mid-range {
+            background-color: var(--mid-range-bg);
+            border: 1px solid var(--mid-range-border);
+        }
+        
+        .grade-category.mid-range .mark-button {
+            border-color: var(--mid-range-border);
+        }
+
+        .grade-category h3 {
+            font-size: 14px;
+            margin: 0 0 8px 0;
+            color: var(--text-color);
+        }
+
+        .marks-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 5px;
+        }
+
+        .mark-button {
+            position: relative; /* For tooltip positioning */
+            background-color: white;
+            border: 2px solid var(--button-border);
+            border-radius: 4px;
+            padding: 6px 4px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-color);
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .mark-button:hover {
+            background-color: white;
+            border-color: var(--button-active);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mark-button.active {
+            background-color: var(--button-active);
+            color: var(--button-active-text);
+            border-color: var(--button-active);
+            font-weight: 600;
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        /* Tooltip for first-class marks in Semester 2 only */
+        .mark-button[data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 200px;
+            padding: 6px 10px;
+            background: #333;
+            color: #fff;
+            font-size: 12px;
+            border-radius: 4px;
+            text-align: center;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .mark-button[data-tooltip]:hover::before {
+            content: "";
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #333;
+            pointer-events: none;
+        }
+
+        .accordion {
+            margin-top: 15px;
+        }
+
+        .accordion-button {
+            width: 100%;
+            text-align: left;
+            background-color: var(--fail-bg);
+            border: 1px solid var(--fail-border);
+            border-radius: 6px;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-color);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .accordion-button:after {
+            content: '▼';
+            font-size: 10px;
+            transition: transform 0.3s;
+        }
+
+        .accordion-button.active:after {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            display: none;
+            padding: 15px;
+            border: 1px solid var(--fail-border);
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            background-color: var(--fail-bg);
+        }
+
+        .accordion-content.show {
+            display: block;
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .explanation-box {
+            background-color: var(--explanation-bg);
+            border-left: 4px solid var(--heading-color);
+            border-radius: 6px;
+            padding: 20px;
+            position: relative;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--copy-button-bg);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .copy-btn:hover {
+            background-color: #0256b4;
+        }
+
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: var(--toast-bg);
+            color: var(--toast-text);
+            text-align: center;
+            border-radius: 6px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein {
+            from {bottom: 0; opacity: 0;}
+            to {bottom: 30px; opacity: 1;}
+        }
+        
+        @keyframes fadeout {
+            from {bottom: 30px; opacity: 1;}
+            to {bottom: 0; opacity: 0;}
+        }
+
+        /* First-class alert box */
+        .first-class-alert {
+            display: none;
+            background-color: #fff8e1;
+            border-left: 4px solid #ffb300;
+            border-radius: 6px;
+            padding: 15px 20px;
+            margin: 0 0 20px;
+            position: relative;
+            animation: slideDown 0.3s ease-out;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .first-class-alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .first-class-alert-header h3 {
+            margin: 0;
+            color: #f57c00;
+            font-size: 16px;
+        }
+        
+        .close-alert {
+            color: #aaa;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 0 5px;
+        }
+        
+        .close-alert:hover {
+            color: #f57c00;
+        }
+        
+        /* Completion checklist styles */
+        .completion-checklist {
+            margin-top: 25px;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 20px;
+        }
+        
+        .completion-section {
+            margin-bottom: 25px;
+        }
+        
+        .completion-section h3 {
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--heading-color);
+        }
+        
+        /* Cross-off checklist item styles */
+        .check-item {
+            padding: 8px 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        
+        .check-item:hover {
+            background-color: #f0f7ff;
+        }
+        
+        .check-item.crossed {
+            text-decoration: line-through;
+            color: #999;
+            background-color: #f5f5f5;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .grades-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .rpm-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .rpm-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>DMP Grade Calculator</h1>
+        </div>
+        
+        <!-- Semester 2 Box -->
+        <div class="semester-box">
+            <div class="semester-title">Semester 2 Portfolio (70%)</div>
+            
+            <!-- RPM Section -->
+            <div class="section">
+                <div class="section-title">Recorded Progress Meetings</div>
+                
+                <div class="rpm-container">
+                    <div class="rpm-group">
+                        <span class="rpm-label">RPM 1:</span>
+                        <select id="rpm1" onchange="calculateResults()">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5" selected>5</option>
+                        </select>
+                    </div>
+                    
+                    <div class="rpm-group">
+                        <span class="rpm-label">RPM 2:</span>
+                        <select id="rpm2" onchange="calculateResults()">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3" selected>3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    
+                    <div class="rpm-group">
+                        <span class="rpm-label">RPM 3:</span>
+                        <select id="rpm3" onchange="calculateResults()">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4" selected>4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    
+                    <div class="rpm-group">
+                        <span class="rpm-label">RPM 4:</span>
+                        <select id="rpm4" onchange="calculateResults()">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5" selected>5</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Final Submission Section -->
+            <div class="section">
+                <div class="section-title">Final Submission (report and digital assets)</div>
+                <input type="hidden" id="final" value="72">
+                
+                <div class="grades-container">
+                    <div class="grade-category first-class">
+                        <h3>First Class (70-100%)</h3>
+                        <div class="marks-group">
+                            <button class="mark-button" data-target="final" data-value="100" data-tooltip="Does the student match the first mark requirements, listed below?">100</button>
+                            <button class="mark-button" data-target="final" data-value="95" data-tooltip="Does the student match the first mark requirements, listed below?">95</button>
+                            <button class="mark-button" data-target="final" data-value="92" data-tooltip="Does the student match the first mark requirements, listed below?">92</button>
+                            <button class="mark-button" data-target="final" data-value="85" data-tooltip="Does the student match the first mark requirements, listed below?">85</button>
+                            <button class="mark-button" data-target="final" data-value="78" data-tooltip="Does the student match the first mark requirements, listed below?">78</button>
+                            <button class="mark-button" data-target="final" data-value="75" data-tooltip="Does the student match the first mark requirements, listed below?">75</button>
+                            <button class="mark-button active" data-target="final" data-value="72" data-tooltip="Does the student match the first mark requirements, listed below?">72</button>
+                        </div>
+                    </div>
+                    
+                    <div class="grade-category mid-range">
+                        <h3>2:1 and 2:2 (40-69%)</h3>
+                        <div class="marks-group">
+                            <button class="mark-button" data-target="final" data-value="68">68</button>
+                            <button class="mark-button" data-target="final" data-value="65">65</button>
+                            <button class="mark-button" data-target="final" data-value="62">62</button>
+                            <button class="mark-button" data-target="final" data-value="58">58</button>
+                            <button class="mark-button" data-target="final" data-value="55">55</button>
+                            <button class="mark-button" data-target="final" data-value="52">52</button>
+                            <button class="mark-button" data-target="final" data-value="48">48</button>
+                            <button class="mark-button" data-target="final" data-value="45">45</button>
+                            <button class="mark-button" data-target="final" data-value="42">42</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion">
+                    <button class="accordion-button" id="fail-accordion-btn">Show Fail Marks (0-39%)</button>
+                    <div class="accordion-content" id="fail-accordion-content">
+                        <div class="marks-group">
+                            <button class="mark-button" data-target="final" data-value="38">38</button>
+                            <button class="mark-button" data-target="final" data-value="35">35</button>
+                            <button class="mark-button" data-target="final" data-value="32">32</button>
+                            <button class="mark-button" data-target="final" data-value="28">28</button>
+                            <button class="mark-button" data-target="final" data-value="25">25</button>
+                            <button class="mark-button" data-target="final" data-value="22">22</button>
+                            <button class="mark-button" data-target="final" data-value="18">18</button>
+                            <button class="mark-button" data-target="final" data-value="15">15</button>
+                            <button class="mark-button" data-target="final" data-value="12">12</button>
+                            <button class="mark-button" data-target="final" data-value="8">8</button>
+                            <button class="mark-button" data-target="final" data-value="5">5</button>
+                            <button class="mark-button" data-target="final" data-value="2">2</button>
+                            <button class="mark-button" data-target="final" data-value="0">0</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Semester 1 Box -->
+        <div class="semester-box">
+            <div class="semester-title">Semester 1 Plan (30%)</div>
+            
+            <div class="section">
+                <input type="hidden" id="plan" value="65">
+                
+                <div class="grades-container">
+                    <div class="grade-category first-class">
+                        <h3>First Class (70-100%)</h3>
+                        <div class="marks-group">
+                            <button class="mark-button" data-target="plan" data-value="100">100</button>
+                            <button class="mark-button" data-target="plan" data-value="95">95</button>
+                            <button class="mark-button" data-target="plan" data-value="92">92</button>
+                            <button class="mark-button" data-target="plan" data-value="85">85</button>
+                            <button class="mark-button" data-target="plan" data-value="78">78</button>
+                            <button class="mark-button" data-target="plan" data-value="75">75</button>
+                            <button class="mark-button" data-target="plan" data-value="72">72</button>
+                        </div>
+                    </div>
+                    
+                    <div class="grade-category mid-range">
+                        <h3>2:1 and 2:2 (40-69%)</h3>
+                        <div class="marks-group">
+                            <button class="mark-button" data-target="plan" data-value="68">68</button>
+                            <button class="mark-button active" data-target="plan" data-value="65">65</button>
+                            <button class="mark-button" data-target="plan" data-value="62">62</button>
+                            <button class="mark-button" data-target="plan" data-value="58">58</button>
+                            <button class="mark-button" data-target="plan" data-value="55">55</button>
+                            <button class="mark-button" data-target="plan" data-value="52">52</button>
+                            <button class="mark-button" data-target="plan" data-value="48">48</button>
+                            <button class="mark-button" data-target="plan" data-value="45">45</button>
+                            <button class="mark-button" data-target="plan" data-value="42">42</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion">
+                    <button class="accordion-button" id="fail-accordion-plan-btn">Show Fail Marks (0-39%)</button>
+                    <div class="accordion-content" id="fail-accordion-plan-content">
+                        <div class="marks-group">
+                            <button class="mark-button" data-target="plan" data-value="38">38</button>
+                            <button class="mark-button" data-target="plan" data-value="35">35</button>
+                            <button class="mark-button" data-target="plan" data-value="32">32</button>
+                            <button class="mark-button" data-target="plan" data-value="28">28</button>
+                            <button class="mark-button" data-target="plan" data-value="25">25</button>
+                            <button class="mark-button" data-target="plan" data-value="22">22</button>
+                            <button class="mark-button" data-target="plan" data-value="18">18</button>
+                            <button class="mark-button" data-target="plan" data-value="15">15</button>
+                            <button class="mark-button" data-target="plan" data-value="12">12</button>
+                            <button class="mark-button" data-target="plan" data-value="8">8</button>
+                            <button class="mark-button" data-target="plan" data-value="5">5</button>
+                            <button class="mark-button" data-target="plan" data-value="2">2</button>
+                            <button class="mark-button" data-target="plan" data-value="0">0</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Section -->
+        <div class="results">
+            <div class="explanation-box">
+                <p id="explanation-text"></p>
+                <button class="copy-btn" id="copy-btn">Copy</button>
+            </div>
+        </div>
+        
+        <!-- Completion Checklist Section - Always Visible -->
+        <div class="completion-checklist">
+            <h2 style="margin-top: 0; color: var(--heading-color);">Assignment Completion Checklist</h2>
+            <p>Click on items to mark them as completed.</p>
+            
+            <div class="completion-section">
+                <h3>🔹 Report Content</h3>
+                
+                <div class="check-item">
+                    <strong>Title Page</strong> – Include your name, student ID, module, assessment title, project title, submission date, supervisor's name, word count, and link to your website.
+                </div>
+                
+                <div class="check-item">
+                    <strong>Acknowledgements</strong> <em>(optional)</em> – Thank individuals or organisations who supported your project.
+                </div>
+                
+                <div class="check-item">
+                    <strong>Abstract</strong> – A one-page summary of your research story as presented in the final report.
+                </div>
+                
+                <div class="check-item">
+                    <strong>Contents Page</strong> – List of report sections with page numbers.
+                </div>
+                
+                <div class="check-item">
+                    <strong>Introduction</strong> – Overview of the project, including your research question, aim, objectives, and rationale.
+                </div>
+                
+                <div class="check-item">
+                    <strong>Literature Review</strong> – Overview of relevant literature that contextualises your project and shows subject knowledge.
+                </div>
+                
+                <div class="check-item">
+                    <strong>Research Design</strong> – Explanation of your research strategy, methods, sampling, ethics, and limitations.
+                </div>
+                
+                <div class="check-item">
+                    <strong>Results</strong> – Presentation of findings using charts, tables, word clouds, etc.
+                </div>
+                
+                <div class="check-item">
+                    <strong>Discussion</strong> – Interpretation of findings, comparison across data sets and literature, and discussion of significance.
+                </div>
+                
+                <div class="check-item">
+                    <strong>Conclusion</strong> – Summary of key findings in relation to aims/objectives, with limitations and recommendations for future research and practice.
+                </div>
+                
+                <div class="check-item">
+                    <strong>Reference List</strong> – All cited sources, formatted using <em>Cite Them Right</em>.
+                </div>
+                
+                <div class="check-item">
+                    <strong>Appendices</strong> – Include RPM forms, consent documents, primary data materials, and ensure all are numbered and referenced properly.
+                </div>
+            </div>
+            
+            <div class="completion-section">
+                <h3>🔹 Website Content</h3>
+                
+                <div class="check-item">
+                    <strong>Homepage</strong> – Embed your digital media asset (5–10 min video or 6–10 image portfolio) and describe your creative investigation.
+                </div>
+                
+                <div class="check-item">
+                    <strong>Project Reflection Page</strong> – Reflect on both research and creative aspects: what you did, how, what worked/didn't, lessons learned, and your professional development plan. Use a reflective model (e.g., Gibbs, 1988).
+                </div>
+                
+                <div class="check-item">
+                    <strong>About Me Page</strong> – Introduce yourself, your skills, interests, and experience. You may include a photo (optional).
+                </div>
+            </div>
+            
+            <div class="completion-section" id="first-class-requirements">
+                <h3>🔹 First-Class Grade Requirements (70+)</h3>
+                
+                <!-- First class alert notification positioned exactly below the heading -->
+                <div class="first-class-alert" id="first-class-alert">
+                    <div class="first-class-alert-header">
+                        <h3>Before awarding a first, make sure the student matches the requirements below</h3>
+                        <span class="close-alert">&times;</span>
+                    </div>
+                </div>
+                
+                <div class="check-item">
+                    <strong>Sources</strong> – Excellent range of relevant sources with strong synthesis across report and website.
+                </div>
+                
+                <div class="check-item">
+                    <strong>Evidence</strong> – Convincing empirical data (e.g., 3–4 interviews + 80+ survey responses for mixed methods).
+                </div>
+                
+                <div class="check-item">
+                    <strong>Presentation</strong> – Professionally presented data (clear charts, well-formatted quotes).
+                </div>
+                
+                <div class="check-item">
+                    <strong>Analysis</strong> – Effective triangulation and critical analysis within the context of published work.
+                </div>
+                
+                <div class="check-item">
+                    <strong>Writing</strong> – Clear, concise, and well-structured report.
+                </div>
+                
+                <div class="check-item">
+                    <strong>Appendices</strong> – Complete, clearly labelled, and referenced.
+                </div>
+                
+                <div class="check-item">
+                    <strong>Website</strong> – Expertly customised site that communicates the project clearly and effectively.
+                </div>
+                
+                <div class="check-item">
+                    <strong>Media</strong> – High-quality digital media assets (technically and visually).
+                </div>
+                
+                <div class="check-item">
+                    <strong>Professionalism</strong> – Outstanding engagement throughout (e.g., RPM meetings, ethics, brief adherence, organised work).
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast">Copied to clipboard!</div>
+    
+    <script>
+        // Stepped mark values
+        const steppedMarks = [
+            100, 95, 92, 85, 78, 75, 72,  // 1st
+            68, 65, 62,                   // 2:1
+            58, 55, 52,                   // 2:2
+            48, 45, 42,                   // 3rd
+            38, 35, 32,                   // Marginal fail
+            28, 25, 22, 18, 15, 12, 8, 5, 2, 0  // Fail
+        ];
+        
+        // Initialize when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initial calculation
+            calculateResults();
+            
+            // Setup mark button click handlers
+            setupMarkButtonListeners();
+            
+            // Setup accordion functionality
+            setupAccordionListeners();
+            
+            // Setup checklist item click handlers
+            setupChecklistItemListeners();
+            
+            // Setup close alert button
+            setupAlertCloseButton();
+            
+            // Setup copy button
+            setupCopyButton();
+            
+            // Display first-class alert if a first-class mark is already selected
+            displayFirstClassAlertIfNeeded();
+        });
+        
+        // Calculate and display the results
+        function calculateResults() {
+            // Get input values
+            const rpm1 = parseFloat(document.getElementById('rpm1').value);
+            const rpm2 = parseFloat(document.getElementById('rpm2').value);
+            const rpm3 = parseFloat(document.getElementById('rpm3').value);
+            const rpm4 = parseFloat(document.getElementById('rpm4').value);
+            const finalSubmission = parseFloat(document.getElementById('final').value);
+            const plan = parseFloat(document.getElementById('plan').value);
+            
+            // Calculate total RPM
+            const totalRPM = rpm1 + rpm2 + rpm3 + rpm4;
+            const rpmPercentage = (totalRPM / 20) * 100;
+            
+            // Calculate Semester 2 mark
+            const sem2Raw = (rpmPercentage * 0.1) + (finalSubmission * 0.9);
+            const sem2Stepped = getSteppedMark(sem2Raw);
+            
+            // Calculate overall module mark (NOT stepped)
+            const overallMark = (plan * 0.3) + (sem2Stepped * 0.7);
+            const roundedOverall = Math.round(overallMark);
+            
+            // Create detailed explanation
+            const explanation = `Overall Mark: (Semester 1 Plan Mark ${plan} × 0.3) + (Semester 2 (RPMs ${rpmPercentage.toFixed(2)} × 0.1) + (Portfolio ${finalSubmission} × 0.9) = ${sem2Raw.toFixed(2)}%) = ${(plan * 0.3).toFixed(1)} + ${(sem2Stepped * 0.7).toFixed(1)} = <strong>${roundedOverall}</strong>`;
+            
+            document.getElementById('explanation-text').innerHTML = explanation;
+        }
+        
+        // Find the closest stepped mark value
+        function getSteppedMark(mark) {
+            let closest = steppedMarks[0];
+            let minDiff = Math.abs(mark - closest);
+            
+            for (let i = 1; i < steppedMarks.length; i++) {
+                const diff = Math.abs(mark - steppedMarks[i]);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closest = steppedMarks[i];
+                }
+            }
+            
+            return closest;
+        }
+        
+        // Setup mark button click listeners
+        function setupMarkButtonListeners() {
+            document.querySelectorAll('.mark-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const target = this.getAttribute('data-target');
+                    const value = parseInt(this.getAttribute('data-value'));
+                    
+                    // Find all buttons targeting the same input and remove active class
+                    document.querySelectorAll(`.mark-button[data-target="${target}"]`).forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Update hidden input value
+                    document.getElementById(target).value = value;
+                    
+                    // Show first class alert when a first class mark is selected in semester 2
+                    if (value >= 70 && target === 'final') {
+                        document.getElementById('first-class-alert').style.display = 'block';
+                    } else if (value < 70 && target === 'final') {
+                        document.getElementById('first-class-alert').style.display = 'none';
+                    }
+                    
+                    // Recalculate results
+                    calculateResults();
+                });
+            });
+        }
+        
+        // Setup accordion functionality
+        function setupAccordionListeners() {
+            document.getElementById('fail-accordion-btn').addEventListener('click', function() {
+                this.classList.toggle('active');
+                document.getElementById('fail-accordion-content').classList.toggle('show');
+            });
+            
+            document.getElementById('fail-accordion-plan-btn').addEventListener('click', function() {
+                this.classList.toggle('active');
+                document.getElementById('fail-accordion-plan-content').classList.toggle('show');
+            });
+        }
+        
+        // Setup checklist item click listeners
+        function setupChecklistItemListeners() {
+            document.querySelectorAll('.check-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    this.classList.toggle('crossed');
+                });
+            });
+        }
+        
+        // Setup alert close button
+        function setupAlertCloseButton() {
+            document.querySelector('.close-alert').addEventListener('click', function() {
+                document.getElementById('first-class-alert').style.display = 'none';
+            });
+        }
+        
+        // Setup copy button functionality
+        function setupCopyButton() {
+            document.getElementById('copy-btn').addEventListener('click', copyExplanation);
+        }
+        
+        // Copy explanation text to clipboard
+        function copyExplanation() {
+            const text = document.getElementById('explanation-text').innerText;
+            
+            // Create a temporary textarea element
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';  // Prevent scrolling
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast();
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                alert('Failed to copy text to clipboard');
+            }
+            
+            document.body.removeChild(textarea);
+        }
+        
+        // Show toast notification
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.className = 'toast show';
+            setTimeout(() => {
+                toast.className = toast.className.replace('show', '');
+            }, 3000);
+        }
+        
+        // Display first-class alert if a first-class mark is already selected
+        function displayFirstClassAlertIfNeeded() {
+            const initialFinalValue = parseInt(document.getElementById('final').value);
+            if (initialFinalValue >= 70) {
+                document.getElementById('first-class-alert').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
