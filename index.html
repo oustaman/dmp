@@ -33,6 +33,10 @@
             --mid-range-border: #c2dcff;
             --fail-bg: #ffede9;
             --fail-border: #f7c4bc;
+            
+            --secondary-box-bg: #f8f9fa;
+            --secondary-box-border: #dee2e6;
+            --secondary-box-text: #6c757d;
         }
 
         * {
@@ -145,9 +149,10 @@
             box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
         }
 
-        .grades-container {
+        /* Three column layout for grades */
+        .grades-three-column {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 3fr 5fr 2fr;
             gap: 15px;
             margin-bottom: 20px;
         }
@@ -188,7 +193,7 @@
         }
 
         .mark-button {
-            position: relative; /* For tooltip positioning */
+            position: relative;
             background-color: white;
             border: 2px solid var(--button-border);
             border-radius: 4px;
@@ -199,6 +204,13 @@
             color: var(--text-color);
             text-align: center;
             font-weight: 500;
+        }
+        
+        /* Style for marks 80+ */
+        .mark-button.high-mark {
+            opacity: 1;
+            background-color: #fff;
+            color: #248800;
         }
         
         .mark-button:hover {
@@ -217,22 +229,46 @@
             box-shadow: none;
         }
 
-        /* Tooltip for first-class marks in Semester 2 only */
+        /* Regular tooltip for marks below 80 */
         .mark-button[data-tooltip]:hover::after {
             content: attr(data-tooltip);
             position: absolute;
             bottom: 120%;
             left: 50%;
             transform: translateX(-50%);
-            max-width: 200px;
-            padding: 6px 10px;
-            background: #333;
-            color: #fff;
-            font-size: 12px;
-            border-radius: 4px;
+            max-width: 220px;
+            padding: 8px 12px;
+            background: #444444;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 400;
+            border-radius: 6px;
             text-align: center;
             pointer-events: none;
             z-index: 10;
+            white-space: normal;
+            line-height: 1.4;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Warning tooltip for high marks (80+) with construction stripe border */
+        .mark-button.high-mark[data-tooltip]:hover::after {
+            background: #ffede9;
+            color: #d32f2f;
+            padding: 12px 16px;
+            border-radius: 0;
+            font-weight: 600;
+            border: 4px solid;
+            border-image: repeating-linear-gradient(
+                45deg,
+                #000000,
+                #000000 4px,
+                #ffeb3b 4px,
+                #ffeb3b 8px
+            ) 4;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            opacity: 1 !important;
+            z-index: 20;
         }
         
         .mark-button[data-tooltip]:hover::before {
@@ -241,13 +277,19 @@
             bottom: 110%;
             left: 50%;
             transform: translateX(-50%);
-            border: 5px solid transparent;
-            border-top-color: #333;
+            border: 6px solid transparent;
+            border-top-color: #444444;
             pointer-events: none;
+        }
+        
+        .mark-button.high-mark[data-tooltip]:hover::before {
+            border-top-color: #000000;
+            bottom: 115%;
+            opacity: 1;
         }
 
         .accordion {
-            margin-top: 15px;
+            margin-top: 0;
         }
 
         .accordion-button {
@@ -289,47 +331,71 @@
             display: block;
         }
 
+        /* Updated results section */
         .results {
             margin-top: 30px;
         }
 
-        .explanation-box {
+        .semester-2-box {
+            display: flex;
+            align-items: center;
             background-color: var(--explanation-bg);
             border-left: 4px solid var(--heading-color);
             border-radius: 6px;
-            padding: 20px;
             position: relative;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .semester-2-content {
+            flex: 1;
+            padding: 20px;
             font-size: 16px;
             line-height: 1.6;
         }
 
-        .copy-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
+        .copy-section {
+            padding: 20px;
             background-color: var(--copy-button-bg);
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
+            min-width: 180px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .copy-btn:hover {
+        .copy-section:hover {
             background-color: #0256b4;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transform: translateX(2px);
         }
-        
-        .copy-btn::before {
+
+        .copy-btn-text {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .copy-btn-text::before {
             content: "📋";
             font-size: 16px;
+        }
+
+        .overall-box {
+            background-color: var(--secondary-box-bg);
+            border-left: 4px solid var(--secondary-box-border);
+            border-radius: 6px;
+            padding: 20px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--secondary-box-text);
+        }
+
+        .overall-box strong {
+            color: var(--text-color);
         }
 
         .toast {
@@ -458,7 +524,7 @@
                 padding: 20px 15px;
             }
             
-            .grades-container {
+            .grades-three-column {
                 grid-template-columns: 1fr;
             }
             
@@ -470,6 +536,16 @@
             .rpm-group {
                 width: 100%;
                 justify-content: space-between;
+            }
+            
+            .semester-2-box {
+                flex-direction: column;
+            }
+            
+            .copy-section {
+                width: 100%;
+                min-width: unset;
+                padding: 15px;
             }
         }
     </style>
@@ -540,14 +616,14 @@
                 <div class="section-title">Final Submission (report and digital assets)</div>
                 <input type="hidden" id="final" value="72">
                 
-                <div class="grades-container">
+                <div class="grades-three-column">
                     <div class="grade-category first-class">
                         <h3>First Class (70-100%)</h3>
                         <div class="marks-group">
-                            <button class="mark-button" data-target="final" data-value="100" data-tooltip="Does the student match the first mark requirements, listed below?">100</button>
-                            <button class="mark-button" data-target="final" data-value="95" data-tooltip="Does the student match the first mark requirements, listed below?">95</button>
-                            <button class="mark-button" data-target="final" data-value="92" data-tooltip="Does the student match the first mark requirements, listed below?">92</button>
-                            <button class="mark-button" data-target="final" data-value="85" data-tooltip="Does the student match the first mark requirements, listed below?">85</button>
+                            <button class="mark-button high-mark" data-target="final" data-value="100" data-tooltip="Highly unlikely, consult colleagues">100</button>
+                            <button class="mark-button high-mark" data-target="final" data-value="95" data-tooltip="Highly unlikely, consult colleagues">95</button>
+                            <button class="mark-button high-mark" data-target="final" data-value="92" data-tooltip="Highly unlikely, consult colleagues">92</button>
+                            <button class="mark-button high-mark" data-target="final" data-value="85" data-tooltip="Highly unlikely, consult colleagues">85</button>
                             <button class="mark-button" data-target="final" data-value="78" data-tooltip="Does the student match the first mark requirements, listed below?">78</button>
                             <button class="mark-button" data-target="final" data-value="75" data-tooltip="Does the student match the first mark requirements, listed below?">75</button>
                             <button class="mark-button active" data-target="final" data-value="72" data-tooltip="Does the student match the first mark requirements, listed below?">72</button>
@@ -568,28 +644,29 @@
                             <button class="mark-button" data-target="final" data-value="42">42</button>
                         </div>
                     </div>
-                </div>
-                
-                <div class="accordion">
-                    <button class="accordion-button" id="fail-accordion-btn">Show Fail Marks (0-39%)</button>
-                    <div class="accordion-content" id="fail-accordion-content">
-                        <div class="marks-group">
-                            <button class="mark-button" data-target="final" data-value="38">38</button>
-                            <button class="mark-button" data-target="final" data-value="35">35</button>
-                            <button class="mark-button" data-target="final" data-value="32">32</button>
-                            <button class="mark-button" data-target="final" data-value="28">28</button>
-                            <button class="mark-button" data-target="final" data-value="25">25</button>
-                            <button class="mark-button" data-target="final" data-value="22">22</button>
-                            <button class="mark-button" data-target="final" data-value="18">18</button>
-                            <button class="mark-button" data-target="final" data-value="15">15</button>
-                            <button class="mark-button" data-target="final" data-value="12">12</button>
-                            <button class="mark-button" data-target="final" data-value="8">8</button>
-                            <button class="mark-button" data-target="final" data-value="5">5</button>
-                            <button class="mark-button" data-target="final" data-value="2">2</button>
-                            <button class="mark-button" data-target="final" data-value="0">0</button>
+                    
+                    <div class="accordion">
+                        <button class="accordion-button" id="fail-accordion-btn">Show Fail Marks (0-39%)</button>
+                        <div class="accordion-content" id="fail-accordion-content">
+                            <div class="marks-group">
+                                <button class="mark-button" data-target="final" data-value="38">38</button>
+                                <button class="mark-button" data-target="final" data-value="35">35</button>
+                                <button class="mark-button" data-target="final" data-value="32">32</button>
+                                <button class="mark-button" data-target="final" data-value="28">28</button>
+                                <button class="mark-button" data-target="final" data-value="25">25</button>
+                                <button class="mark-button" data-target="final" data-value="22">22</button>
+                                <button class="mark-button" data-target="final" data-value="18">18</button>
+                                <button class="mark-button" data-target="final" data-value="15">15</button>
+                                <button class="mark-button" data-target="final" data-value="12">12</button>
+                                <button class="mark-button" data-target="final" data-value="8">8</button>
+                                <button class="mark-button" data-target="final" data-value="5">5</button>
+                                <button class="mark-button" data-target="final" data-value="2">2</button>
+                                <button class="mark-button" data-target="final" data-value="0">0</button>
+                            </div>
                         </div>
                     </div>
                 </div>
+                
             </div>
         </div>
         
@@ -600,14 +677,14 @@
             <div class="section">
                 <input type="hidden" id="plan" value="65">
                 
-                <div class="grades-container">
+                <div class="grades-three-column">
                     <div class="grade-category first-class">
                         <h3>First Class (70-100%)</h3>
                         <div class="marks-group">
-                            <button class="mark-button" data-target="plan" data-value="100">100</button>
-                            <button class="mark-button" data-target="plan" data-value="95">95</button>
-                            <button class="mark-button" data-target="plan" data-value="92">92</button>
-                            <button class="mark-button" data-target="plan" data-value="85">85</button>
+                            <button class="mark-button high-mark" data-target="plan" data-value="100">100</button>
+                            <button class="mark-button high-mark" data-target="plan" data-value="95">95</button>
+                            <button class="mark-button high-mark" data-target="plan" data-value="92">92</button>
+                            <button class="mark-button high-mark" data-target="plan" data-value="85">85</button>
                             <button class="mark-button" data-target="plan" data-value="78">78</button>
                             <button class="mark-button" data-target="plan" data-value="75">75</button>
                             <button class="mark-button" data-target="plan" data-value="72">72</button>
@@ -628,36 +705,45 @@
                             <button class="mark-button" data-target="plan" data-value="42">42</button>
                         </div>
                     </div>
-                </div>
-                
-                <div class="accordion">
-                    <button class="accordion-button" id="fail-accordion-plan-btn">Show Fail Marks (0-39%)</button>
-                    <div class="accordion-content" id="fail-accordion-plan-content">
-                        <div class="marks-group">
-                            <button class="mark-button" data-target="plan" data-value="38">38</button>
-                            <button class="mark-button" data-target="plan" data-value="35">35</button>
-                            <button class="mark-button" data-target="plan" data-value="32">32</button>
-                            <button class="mark-button" data-target="plan" data-value="28">28</button>
-                            <button class="mark-button" data-target="plan" data-value="25">25</button>
-                            <button class="mark-button" data-target="plan" data-value="22">22</button>
-                            <button class="mark-button" data-target="plan" data-value="18">18</button>
-                            <button class="mark-button" data-target="plan" data-value="15">15</button>
-                            <button class="mark-button" data-target="plan" data-value="12">12</button>
-                            <button class="mark-button" data-target="plan" data-value="8">8</button>
-                            <button class="mark-button" data-target="plan" data-value="5">5</button>
-                            <button class="mark-button" data-target="plan" data-value="2">2</button>
-                            <button class="mark-button" data-target="plan" data-value="0">0</button>
+                    
+                    <div class="accordion">
+                        <button class="accordion-button" id="fail-accordion-plan-btn">Show Fail Marks (0-39%)</button>
+                        <div class="accordion-content" id="fail-accordion-plan-content">
+                            <div class="marks-group">
+                                <button class="mark-button" data-target="plan" data-value="38">38</button>
+                                <button class="mark-button" data-target="plan" data-value="35">35</button>
+                                <button class="mark-button" data-target="plan" data-value="32">32</button>
+                                <button class="mark-button" data-target="plan" data-value="28">28</button>
+                                <button class="mark-button" data-target="plan" data-value="25">25</button>
+                                <button class="mark-button" data-target="plan" data-value="22">22</button>
+                                <button class="mark-button" data-target="plan" data-value="18">18</button>
+                                <button class="mark-button" data-target="plan" data-value="15">15</button>
+                                <button class="mark-button" data-target="plan" data-value="12">12</button>
+                                <button class="mark-button" data-target="plan" data-value="8">8</button>
+                                <button class="mark-button" data-target="plan" data-value="5">5</button>
+                                <button class="mark-button" data-target="plan" data-value="2">2</button>
+                                <button class="mark-button" data-target="plan" data-value="0">0</button>
+                            </div>
                         </div>
                     </div>
                 </div>
+                
             </div>
         </div>
         
         <!-- Results Section -->
         <div class="results">
-            <div class="explanation-box">
-                <p id="explanation-text"></p>
-                <button class="copy-btn" id="copy-btn">Copy Semester 2 Mark</button>
+            <div class="semester-2-box">
+                <div class="semester-2-content">
+                    <p id="semester-2-text"></p>
+                </div>
+                <div class="copy-section" id="copy-btn">
+                    <span class="copy-btn-text">Copy Semester 2 Mark</span>
+                </div>
+            </div>
+            
+            <div class="overall-box">
+                <p id="overall-text"></p>
             </div>
         </div>
         
@@ -843,10 +929,13 @@
             const overallMark = (plan * 0.3) + (sem2Stepped * 0.7);
             const roundedOverall = Math.round(overallMark);
             
-            // Create detailed explanation with two lines
-            const explanation = `Semester 2 Mark: (RPMs ${rpmPercentage.toFixed(2)} × 0.1) + (Portfolio ${finalSubmission} × 0.9) = ${(rpmPercentage * 0.1).toFixed(1)} + ${(finalSubmission * 0.9).toFixed(1)} = ${sem2Raw.toFixed(2)} (stepped to ${sem2Stepped})<br><br>Overall Mark: (Semester 1 Plan Mark ${plan} × 0.3) + (Semester 2 Mark ${sem2Stepped} × 0.7) = ${(plan * 0.3).toFixed(1)} + ${(sem2Stepped * 0.7).toFixed(1)} = <strong>${roundedOverall}</strong>`;
+            // Create separate explanations for each box
+            const semester2Explanation = `Semester 2 Mark: (RPMs ${rpmPercentage.toFixed(2)} × 0.1) + (Portfolio ${finalSubmission} × 0.9) = ${(rpmPercentage * 0.1).toFixed(1)} + ${(finalSubmission * 0.9).toFixed(1)} = ${sem2Raw.toFixed(2)} (stepped to ${sem2Stepped})`;
             
-            document.getElementById('explanation-text').innerHTML = explanation;
+            const overallExplanation = `Overall Mark: (Semester 1 Plan Mark ${plan} × 0.3) + (Semester 2 Mark ${sem2Stepped} × 0.7) = ${(plan * 0.3).toFixed(1)} + ${(sem2Stepped * 0.7).toFixed(1)} = <strong>${roundedOverall}</strong>`;
+            
+            document.getElementById('semester-2-text').innerHTML = semester2Explanation;
+            document.getElementById('overall-text').innerHTML = overallExplanation;
         }
         
         // Find the closest stepped mark value
@@ -932,19 +1021,11 @@
         
         // Copy explanation text to clipboard
         function copyExplanation() {
-            const fullText = document.getElementById('explanation-text').innerText;
-            // Extract only the Semester 2 Mark line
-            const lines = fullText.split('\n');
-            const semester2Line = lines.find(line => line.startsWith('Semester 2 Mark:'));
-            
-            if (!semester2Line) {
-                alert('Could not find Semester 2 Mark to copy');
-                return;
-            }
+            const fullText = document.getElementById('semester-2-text').innerText;
             
             // Create a temporary textarea element
             const textarea = document.createElement('textarea');
-            textarea.value = semester2Line;
+            textarea.value = fullText;
             textarea.style.position = 'fixed';  // Prevent scrolling
             document.body.appendChild(textarea);
             textarea.select();
