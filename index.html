@@ -3,1583 +3,1794 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>DMP Grade Calculator</title>
+        <title>DMP Marker Tool</title>
         <style>
             :root {
-                --bg-color: #f8fafc;
-                --card-bg: #ffffff;
-                --text-color: #24292e;
-                --text-secondary: #586069;
-                --border-color: #e1e4e8;
-                --heading-color: #0366d6;
-                --button-bg: #f1f2f3;
-                --button-border: #e1e4e8;
-                --button-hover: #e2e4e8;
-                --button-active: #0366d6;
-                --button-active-text: white;
-                --results-bg: #f1f8ff;
-                --explanation-bg: #f6fafd;
-                --copy-button-bg: #0366d6;
-                --toast-bg: #24292e;
-                --toast-text: #ffffff;
-                --accordion-bg: #f6f8fa;
-
-                --semester-border: #dde5ed;
-                --semester-bg: #f8fafd;
-
-                --first-class-bg: #e6f7ee;
-                --first-class-border: #b7e1c9;
-                --mid-range-bg: #e9f2ff;
-                --mid-range-border: #c2dcff;
-                --fail-bg: #ffede9;
-                --fail-border: #f7c4bc;
-
-                --secondary-box-bg: #f8f9fa;
-                --secondary-box-border: #dee2e6;
-                --secondary-box-text: #6c757d;
+                --bg: #eef1f5;
+                --surface: #ffffff;
+                --toolbar-bg: #1a1f2e;
+                --toolbar-text: #a0aec0;
+                --toolbar-active: #ffffff;
+                --toolbar-accent: #3b82f6;
+                --text: #1e293b;
+                --text-sec: #475569;
+                --border: #d1d9e6;
+                --heading: #1e40af;
+                --accent: #3b82f6;
+                --accent-hover: #2563eb;
+                --green: #16a34a;
+                --green-bg: #f0fdf4;
+                --green-border: #bbf7d0;
+                --blue-bg: #eff6ff;
+                --blue-border: #bfdbfe;
+                --red-bg: #fef2f2;
+                --red-border: #fecaca;
+                --amber: #d97706;
+                --amber-bg: #fffbeb;
+                --amber-border: #fde68a;
+                --gray-bg: #f8fafc;
+                --gray-border: #d1d9e6;
+                --progress-track: #e2e8f0;
+                --progress-low: #fbbf24;
+                --progress-mid: #60a5fa;
+                --progress-high: #22c55e;
             }
 
-            * {
-                box-sizing: border-box;
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+
+            html, body {
+                height: 100%;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                background: var(--bg);
+                color: var(--text);
+                line-height: 1.45;
+                -webkit-font-smoothing: antialiased;
             }
 
-            body {
-                font-family:
-                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-                    Helvetica, Arial, sans-serif;
-                background-color: var(--bg-color);
-                margin: 0;
-                padding: 20px;
-                color: var(--text-color);
-                line-height: 1.5;
-            }
-
-            .container {
-                max-width: 800px;
+            .app {
+                max-width: 1024px;
                 margin: 0 auto;
-                background-color: var(--card-bg);
-                border-radius: 12px;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-                padding: 30px;
-            }
-
-            .header {
-                margin-bottom: 25px;
-                padding-bottom: 15px;
-                border-bottom: 1px solid var(--border-color);
-                text-align: center;
-            }
-
-            h1 {
-                font-size: 28px;
-                margin: 0;
-                color: var(--heading-color);
-                font-weight: 600;
-            }
-
-            .semester-box {
-                border: 2px solid var(--semester-border);
-                border-radius: 12px;
-                padding: 20px;
-                margin-bottom: 30px;
-                position: relative;
-                background-color: var(--semester-bg);
-            }
-
-            .semester-title {
-                position: absolute;
-                top: -12px;
-                left: 20px;
-                background-color: var(--card-bg);
-                padding: 0 10px;
-                font-size: 16px;
-                font-weight: 600;
-                color: var(--heading-color);
-            }
-
-            .section {
-                margin-bottom: 25px;
-                padding-bottom: 15px;
-                border-bottom: 1px solid var(--border-color);
-            }
-
-            .section:last-child {
-                margin-bottom: 0;
-                padding-bottom: 0;
-                border-bottom: none;
-            }
-
-            .section-title {
-                font-size: 18px;
-                font-weight: 600;
-                margin-bottom: 15px;
-                color: var(--heading-color);
-            }
-
-            .rpm-container {
                 display: flex;
-                align-items: center;
-                flex-wrap: wrap;
-                gap: 15px;
-                margin-bottom: 20px;
+                flex-direction: column;
+                height: 100vh;
+                background: var(--surface);
+                box-shadow: 0 0 40px rgba(0,0,0,0.08);
             }
 
-            .rpm-group {
+            /* ===== TOOLBAR ===== */
+            .toolbar {
+                background: var(--toolbar-bg);
                 display: flex;
-                align-items: center;
+                align-items: stretch;
+                padding: 0 12px;
+                flex-shrink: 0;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
             }
 
-            .rpm-label {
-                font-weight: 500;
-                margin-right: 8px;
+            .toolbar::-webkit-scrollbar { height: 0; }
+
+            .tab-btn {
+                background: none;
+                border: none;
+                padding: 14px 18px;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--toolbar-text);
+                cursor: pointer;
+                border-bottom: 3px solid transparent;
+                transition: all 0.15s;
                 white-space: nowrap;
-            }
-
-            select {
-                padding: 8px 12px;
-                border: 1px solid var(--border-color);
-                border-radius: 6px;
-                font-size: 14px;
-                background-color: white;
-                cursor: pointer;
-                min-width: 60px;
-            }
-
-            select:focus {
-                outline: none;
-                border-color: var(--heading-color);
-                box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
-            }
-
-            /* Three column layout for grades */
-            .grades-three-column {
-                display: grid;
-                grid-template-columns: 3fr 5fr 2fr;
-                gap: 15px;
-                margin-bottom: 20px;
-            }
-
-            .grade-category {
-                border-radius: 8px;
-                padding: 12px;
-            }
-
-            .grade-category.first-class {
-                background-color: var(--first-class-bg);
-                border: 1px solid var(--first-class-border);
-            }
-
-            .grade-category.first-class .mark-button {
-                border-color: var(--first-class-border);
-            }
-
-            .grade-category.mid-range {
-                background-color: var(--mid-range-bg);
-                border: 1px solid var(--mid-range-border);
-            }
-
-            .grade-category.mid-range .mark-button {
-                border-color: var(--mid-range-border);
-            }
-
-            .grade-category h3 {
-                font-size: 14px;
-                margin: 0 0 8px 0;
-                color: var(--text-color);
-            }
-
-            .marks-group {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-                gap: 5px;
-            }
-
-            .mark-button {
-                position: relative;
-                background-color: white;
-                border: 2px solid var(--button-border);
-                border-radius: 4px;
-                padding: 6px 4px;
-                font-size: 13px;
-                cursor: pointer;
-                transition: all 0.2s;
-                color: var(--text-color);
-                text-align: center;
-                font-weight: 500;
-            }
-
-            /* Style for marks 80+ */
-            .mark-button.high-mark {
-                opacity: 1;
-                background-color: #fff;
-                color: #248800;
-            }
-
-            .mark-button:hover {
-                background-color: white;
-                border-color: var(--button-active);
-                transform: translateY(-1px);
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            }
-
-            .mark-button.active {
-                background-color: var(--button-active);
-                color: var(--button-active-text);
-                border-color: var(--button-active);
-                font-weight: 600;
-                transform: translateY(0);
-                box-shadow: none;
-            }
-
-            /* Regular tooltip for marks below 80 */
-            .mark-button[data-tooltip]:hover::after {
-                content: attr(data-tooltip);
-                position: absolute;
-                bottom: 120%;
-                left: 50%;
-                transform: translateX(-50%);
-                max-width: 220px;
-                padding: 8px 12px;
-                background: #444444;
-                color: #ffffff;
-                font-size: 13px;
-                font-weight: 400;
-                border-radius: 6px;
-                text-align: center;
-                pointer-events: none;
-                z-index: 10;
-                white-space: normal;
-                line-height: 1.4;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            }
-
-            /* Warning tooltip for high marks (80+) with construction stripe border */
-            .mark-button.high-mark[data-tooltip]:hover::after {
-                background: #ffede9;
-                color: #d32f2f;
-                padding: 12px 16px;
-                border-radius: 0;
-                font-weight: 600;
-                border: 4px solid;
-                border-image: repeating-linear-gradient(
-                        45deg,
-                        #000000,
-                        #000000 4px,
-                        #ffeb3b 4px,
-                        #ffeb3b 8px
-                    )
-                    4;
-                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-                opacity: 1 !important;
-                z-index: 20;
-            }
-
-            .mark-button[data-tooltip]:hover::before {
-                content: "";
-                position: absolute;
-                bottom: 110%;
-                left: 50%;
-                transform: translateX(-50%);
-                border: 6px solid transparent;
-                border-top-color: #444444;
-                pointer-events: none;
-            }
-
-            .mark-button.high-mark[data-tooltip]:hover::before {
-                border-top-color: #000000;
-                bottom: 115%;
-                opacity: 1;
-            }
-
-            .accordion {
-                margin-top: 0;
-            }
-
-            .accordion-button {
-                width: 100%;
-                text-align: left;
-                background-color: var(--fail-bg);
-                border: 1px solid var(--fail-border);
-                border-radius: 6px;
-                padding: 10px 15px;
-                font-size: 14px;
-                font-weight: 500;
-                color: var(--text-color);
-                cursor: pointer;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-
-            .accordion-button:after {
-                content: "▼";
-                font-size: 10px;
-                transition: transform 0.3s;
-            }
-
-            .accordion-button.active:after {
-                transform: rotate(180deg);
-            }
-
-            .accordion-content {
-                display: none;
-                padding: 15px;
-                border: 1px solid var(--fail-border);
-                border-top: none;
-                border-radius: 0 0 6px 6px;
-                background-color: var(--fail-bg);
-            }
-
-            .accordion-content.show {
-                display: block;
-            }
-
-            /* Updated results section */
-            .results {
-                margin-top: 30px;
-            }
-
-            .semester-2-box {
                 display: flex;
                 align-items: center;
-                background-color: var(--explanation-bg);
-                border-left: 4px solid var(--heading-color);
-                border-radius: 6px;
-                position: relative;
-                margin-bottom: 15px;
-                overflow: hidden;
+                gap: 7px;
+                letter-spacing: 0.01em;
             }
 
-            .semester-2-content {
+            .tab-btn:hover {
+                color: #d0d8e4;
+                background: rgba(255,255,255,0.04);
+            }
+
+            .tab-btn.active {
+                color: var(--toolbar-active);
+                border-bottom-color: var(--toolbar-accent);
+            }
+
+            .tab-icon {
+                font-size: 15px;
+                line-height: 1;
+            }
+
+            /* ===== CONTENT AREA ===== */
+            .content-area {
                 flex: 1;
-                padding: 20px;
-                font-size: 16px;
-                line-height: 1.6;
+                overflow: hidden;
+                position: relative;
             }
 
-            .copy-section {
-                padding: 20px;
-                background-color: var(--copy-button-bg);
+            .tab-content {
+                display: none;
+                height: 100%;
+                overflow-y: auto;
+            }
+
+            .tab-content.active {
                 display: flex;
-                align-items: center;
-                justify-content: center;
-                min-width: 180px;
-                cursor: pointer;
-                transition: all 0.2s;
+                flex-direction: column;
             }
 
-            .copy-section:hover {
-                background-color: #0256b4;
-                transform: translateX(2px);
+            .tab-content:not(#tab-calculator) {
+                padding: 24px;
             }
 
-            .copy-btn-text {
-                color: white;
-                font-size: 14px;
-                font-weight: 500;
+            /* ===== CALCULATOR LAYOUT ===== */
+            #tab-calculator {
+                overflow-y: auto;
+            }
+
+            .calc-grid {
+                display: grid;
+                grid-template-columns: 1fr 380px;
+                gap: 0;
+            }
+
+            .calc-panel {
+                padding: 16px 20px;
+                overflow-y: auto;
+            }
+
+            .calc-panel-left {
+                border-right: 1px solid var(--border);
+                background: var(--surface);
+            }
+
+            .calc-panel-right {
+                background: var(--gray-bg);
+            }
+
+            .panel-title {
+                font-size: 16px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: var(--text-sec);
+                margin-bottom: 12px;
                 display: flex;
                 align-items: center;
                 gap: 8px;
             }
 
-            .copy-btn-text::before {
-                content: "📋";
+            .panel-title .weight {
+                background: var(--accent);
+                color: white;
+                font-size: 13px;
+                padding: 2px 8px;
+                border-radius: 10px;
+                font-weight: 700;
+            }
+
+            .rpm-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px 16px;
+                margin-bottom: 14px;
+            }
+
+            .rpm-row {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .rpm-label {
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--text-sec);
+                min-width: 42px;
+            }
+
+            .rpm-btns {
+                display: flex;
+                gap: 3px;
+            }
+
+            .rpm-btn {
+                width: 30px;
+                height: 28px;
+                border: 1px solid var(--gray-border);
+                border-radius: 4px;
+                background: var(--surface);
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                color: var(--text);
+                transition: all 0.15s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .rpm-btn:hover {
+                border-color: var(--accent);
+                background: var(--blue-bg);
+            }
+
+            .rpm-btn.active {
+                background: var(--accent);
+                color: white;
+                border-color: var(--accent);
+            }
+
+            .rpm-btn.no-rpm {
+                width: auto;
+                padding: 0 7px;
+                font-size: 12px;
+            }
+
+            .sub-label {
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--text-sec);
+                margin-bottom: 6px;
+            }
+
+            .grade-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+                margin-bottom: 8px;
+            }
+
+            .grade-btn {
+                height: 30px;
+                min-width: 38px;
+                border: 1px solid var(--gray-border);
+                border-radius: 4px;
+                background: var(--surface);
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                color: var(--text);
+                transition: all 0.15s;
+                padding: 0 6px;
+                position: relative;
+            }
+
+            .grade-btn:hover {
+                border-color: var(--accent);
+                background: #dbeafe;
+                transform: translateY(-1px);
+            }
+
+            .grade-btn.active {
+                background: #1e3a5f;
+                color: #ffffff;
+                border-color: #1e3a5f;
+                font-weight: 700;
+                transform: none;
+            }
+
+            .grade-btn.high {
+                color: #166534;
+                border-color: var(--green-border);
+            }
+
+            .grade-btn.high.active {
+                color: #ffffff;
+            }
+
+            .grade-btn.high:hover::after {
+                content: attr(data-tip);
+                position: absolute;
+                bottom: calc(100% + 8px);
+                left: 0;
+                background: #7f1d1d;
+                color: #ffffff;
+                padding: 6px 12px;
+                border-radius: 5px;
+                font-size: 13px;
+                font-weight: 600;
+                white-space: nowrap;
+                z-index: 20;
+                pointer-events: none;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            }
+
+            .grade-btn.high:hover::before {
+                content: "";
+                position: absolute;
+                bottom: calc(100% + 3px);
+                left: 12px;
+                border: 5px solid transparent;
+                border-top-color: #7f1d1d;
+                pointer-events: none;
+                z-index: 21;
+            }
+
+            .grade-section-label {
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--text-sec);
+                margin: 8px 0 5px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .grade-section-label .dot {
+                width: 9px;
+                height: 9px;
+                border-radius: 50%;
+                display: inline-block;
+            }
+
+            .dot-green { background: #16a34a; }
+            .dot-blue { background: #3b82f6; }
+            .dot-red { background: #ef4444; }
+
+            .fail-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+                margin: 5px 0 8px;
+            }
+
+            /* ===== CALC HEADER ===== */
+            .calc-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 16px 24px 8px;
+            }
+
+            .calc-header-title {
+                font-size: 22px;
+                font-weight: 700;
+                color: var(--heading);
+            }
+
+            .calc-header-subtitle {
+                font-size: 16px;
+                color: var(--text-sec);
+            }
+
+            .calc-resets {
+                display: flex;
+                gap: 6px;
+            }
+
+            .calc-resets .reset-btn {
+                font-size: 12px;
+                padding: 5px 12px;
+            }
+
+            /* ===== RESULTS BAR (inline) ===== */
+            .results-bar {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 12px 20px;
+                background: var(--gray-bg);
+                border-top: 1px solid var(--border);
                 font-size: 16px;
             }
 
-            .overall-box {
-                background-color: var(--secondary-box-bg);
-                border-left: 4px solid var(--secondary-box-border);
+            .results-bar .result-chip {
+                padding: 6px 14px;
+                background: var(--blue-bg);
                 border-radius: 6px;
-                padding: 20px;
-                font-size: 15px;
-                line-height: 1.6;
-                color: var(--secondary-box-text);
+                border: 1px solid var(--blue-border);
+                font-size: 14px;
+                flex: 1;
             }
 
-            .overall-box strong {
-                color: var(--text-color);
+            .results-bar .result-chip strong {
+                color: var(--heading);
             }
 
+            .copy-btn {
+                background: var(--accent);
+                color: white;
+                border: none;
+                border-radius: 6px;
+                padding: 9px 18px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background 0.15s;
+                white-space: nowrap;
+            }
+
+            .copy-btn:hover { background: var(--accent-hover); }
+
+            /* ===== CHECKLIST CARDS ===== */
+            .checklist-card {
+                max-width: 100%;
+                background: var(--surface);
+            }
+
+            .card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 6px;
+            }
+
+            .card-header h2 {
+                font-size: 22px;
+                font-weight: 700;
+                color: var(--heading);
+                margin-bottom: 2px;
+            }
+
+            .card-header .subtitle {
+                font-size: 16px;
+                color: var(--text-sec);
+            }
+
+            .reset-btn {
+                background: var(--gray-bg);
+                border: 1px solid var(--gray-border);
+                border-radius: 6px;
+                padding: 7px 16px;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--text-sec);
+                cursor: pointer;
+                transition: all 0.15s;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .reset-btn:hover {
+                background: var(--red-bg);
+                border-color: var(--red-border);
+                color: #991b1b;
+            }
+
+            /* ===== PROGRESS BAR ===== */
+            .progress-wrap {
+                margin: 14px 0 18px;
+                position: relative;
+            }
+
+            .progress-track {
+                width: 100%;
+                height: 10px;
+                background: var(--progress-track);
+                border-radius: 5px;
+                overflow: hidden;
+                position: relative;
+            }
+
+            .progress-fill {
+                height: 100%;
+                width: 0%;
+                border-radius: 5px;
+                transition: width 0.35s ease, background-color 0.35s ease;
+                background: var(--progress-mid);
+            }
+
+            .progress-fill.low { background: var(--progress-low); }
+            .progress-fill.high { background: var(--progress-high); }
+
+            .progress-milestones {
+                position: relative;
+                height: 22px;
+                margin-top: 4px;
+            }
+
+            .milestone {
+                position: absolute;
+                transform: translateX(-50%);
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--text-sec);
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+
+            .milestone.visible { opacity: 1; }
+
+            .milestone-marker {
+                position: absolute;
+                top: -14px;
+                width: 1px;
+                height: 10px;
+                background: var(--text-sec);
+                opacity: 0.3;
+            }
+
+            .milestone-left {
+                left: 40%;
+            }
+
+            .milestone-right {
+                left: 70%;
+            }
+
+            .milestone-label-1st {
+                color: var(--green);
+                font-size: 13px;
+                font-weight: 700;
+            }
+
+            .milestone-label-below {
+                color: #b45309;
+                font-size: 12px;
+                font-style: italic;
+                opacity: 0.6;
+            }
+
+            /* ===== CATEGORY TITLE ===== */
+            .cat-title {
+                font-size: 17px;
+                font-weight: 700;
+                color: var(--heading);
+                padding-bottom: 6px;
+                border-bottom: 1px solid var(--border);
+                margin: 20px 0 10px;
+            }
+
+            .cat-title:first-of-type { margin-top: 0; }
+
+            /* ===== CHECK ITEMS ===== */
+            .check-item {
+                display: flex;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 8px 10px;
+                margin-bottom: 4px;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: all 0.15s;
+                user-select: none;
+                font-size: 16px;
+                border: 1px solid transparent;
+            }
+
+            .check-item:hover {
+                background: var(--blue-bg);
+                border-color: var(--blue-border);
+            }
+
+            .check-box {
+                flex-shrink: 0;
+                width: 20px;
+                height: 20px;
+                border: 2px solid var(--gray-border);
+                border-radius: 4px;
+                margin-top: 2px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.15s;
+                background: var(--surface);
+            }
+
+            .check-item:hover .check-box {
+                border-color: var(--accent);
+            }
+
+            .check-item.checked .check-box {
+                background: var(--accent);
+                border-color: var(--accent);
+            }
+
+            .check-item.checked .check-box::after {
+                content: "";
+                width: 6px;
+                height: 10px;
+                border: solid white;
+                border-width: 0 2px 2px 0;
+                transform: rotate(45deg) translateY(-1px);
+            }
+
+            .check-item.checked {
+                color: #64748b;
+            }
+
+            .check-item.checked strong {
+                text-decoration: line-through;
+                color: #94a3b8;
+            }
+
+            /* ===== FIRST CLASS ALERT ===== */
+            .first-class-alert {
+                display: none;
+                background: var(--amber-bg);
+                border: 1px solid var(--amber-border);
+                border-radius: 6px;
+                padding: 12px 16px;
+                margin-bottom: 12px;
+                font-size: 16px;
+                font-weight: 600;
+                color: #78350f;
+                position: relative;
+            }
+
+            .first-class-alert.show { display: block; }
+
+            .close-alert {
+                position: absolute;
+                top: 8px;
+                right: 12px;
+                background: none;
+                border: none;
+                font-size: 20px;
+                color: #78350f;
+                cursor: pointer;
+                line-height: 1;
+            }
+
+            /* ===== DYNAMIC RUBRIC ===== */
+            .rubric-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 16px;
+                font-size: 14px;
+            }
+
+            .rubric-table th, .rubric-table td {
+                border: 1px solid var(--border);
+                padding: 10px 7px;
+                text-align: center;
+                vertical-align: top;
+            }
+
+            .rubric-table th {
+                background: var(--gray-bg);
+                color: var(--heading);
+                font-size: 13px;
+                font-weight: 700;
+            }
+
+            .rubric-table td:first-child {
+                text-align: left;
+                font-weight: 600;
+                background: var(--gray-bg);
+                min-width: 140px;
+            }
+
+            .rubric-cell {
+                cursor: pointer;
+                transition: all 0.15s;
+                font-size: 13px;
+            }
+
+            .rubric-cell:hover { background: var(--blue-bg); }
+
+            .rubric-cell.selected {
+                background: #dbeafe;
+                border: 2px solid var(--accent);
+                font-weight: 600;
+            }
+
+            .rubric-result {
+                background: var(--blue-bg);
+                padding: 16px;
+                border-radius: 8px;
+                text-align: center;
+                font-size: 19px;
+                font-weight: 700;
+                border: 2px dashed var(--blue-border);
+                color: var(--heading);
+            }
+
+            /* ===== FEEDBACK BANK ===== */
+            .fb-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                padding: 12px 14px;
+                margin-bottom: 6px;
+                transition: all 0.15s;
+            }
+
+            .fb-item:hover {
+                border-color: var(--accent);
+                box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            }
+
+            .fb-text {
+                flex: 1;
+                font-size: 16px;
+                line-height: 1.5;
+            }
+
+            .fb-copy {
+                background: var(--gray-bg);
+                border: 1px solid var(--gray-border);
+                border-radius: 4px;
+                padding: 6px 14px;
+                font-size: 13px;
+                font-weight: 700;
+                cursor: pointer;
+                color: var(--text-sec);
+                transition: all 0.15s;
+                white-space: nowrap;
+            }
+
+            .fb-copy:hover {
+                background: var(--accent);
+                color: white;
+                border-color: var(--accent);
+            }
+
+            .fb-copy.copied {
+                background: var(--green);
+                color: white;
+                border-color: var(--green);
+            }
+
+            /* ===== FEEDBACK CATEGORIES (collapsible, two-column) ===== */
+            .fb-cat {
+                margin-bottom: 12px;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            .fb-cat-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                background: var(--gray-bg);
+                cursor: pointer;
+                user-select: none;
+                transition: background 0.15s;
+            }
+
+            .fb-cat-header:hover {
+                background: var(--blue-bg);
+            }
+
+            .fb-cat-header h3 {
+                font-size: 16px;
+                font-weight: 700;
+                color: var(--heading);
+                margin: 0;
+            }
+
+            .fb-cat-arrow {
+                font-size: 12px;
+                color: var(--text-sec);
+                transition: transform 0.2s;
+            }
+
+            .fb-cat.open .fb-cat-arrow {
+                transform: rotate(180deg);
+            }
+
+            .fb-cat-body {
+                display: none;
+                padding: 16px;
+            }
+
+            .fb-cat.open .fb-cat-body {
+                display: block;
+            }
+
+            .fb-columns {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+            }
+
+            .fb-col-title {
+                font-size: 13px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+                margin-bottom: 10px;
+                padding-bottom: 6px;
+                border-bottom: 2px solid;
+            }
+
+            .fb-col-title.improve {
+                color: #b45309;
+                border-color: #fbbf24;
+            }
+
+            .fb-col-title.praise {
+                color: #15803d;
+                border-color: #86efac;
+            }
+
+            .fb-col .fb-item {
+                border-left: 3px solid var(--border);
+                padding-left: 10px;
+            }
+
+            .fb-col .fb-item.improve-item {
+                border-left-color: #fbbf24;
+            }
+
+            .fb-col .fb-item.praise-item {
+                border-left-color: #86efac;
+            }
+
+            @media (max-width: 700px) {
+                .fb-columns {
+                    grid-template-columns: 1fr;
+                    gap: 16px;
+                }
+            }
+
+            /* ===== TOAST ===== */
             .toast {
                 visibility: hidden;
-                min-width: 250px;
-                margin-left: -125px;
-                background-color: var(--toast-bg);
-                color: var(--toast-text);
+                min-width: 240px;
+                background: var(--text);
+                color: white;
                 text-align: center;
-                border-radius: 6px;
-                padding: 16px;
+                border-radius: 8px;
+                padding: 12px 20px;
                 position: fixed;
-                z-index: 1;
+                z-index: 999;
                 left: 50%;
                 bottom: 30px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                transform: translateX(-50%);
+                font-size: 16px;
+                font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             }
 
             .toast.show {
                 visibility: visible;
-                animation:
-                    fadein 0.5s,
-                    fadeout 0.5s 2.5s;
+                animation: toastIn 0.3s, toastOut 0.3s 2.2s;
             }
 
-            @keyframes fadein {
-                from {
-                    bottom: 0;
-                    opacity: 0;
-                }
-                to {
-                    bottom: 30px;
-                    opacity: 1;
-                }
+            @keyframes toastIn {
+                from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+                to { opacity: 1; transform: translateX(-50%) translateY(0); }
             }
 
-            @keyframes fadeout {
-                from {
-                    bottom: 30px;
-                    opacity: 1;
-                }
-                to {
-                    bottom: 0;
-                    opacity: 0;
+            @keyframes toastOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+
+            /* ===== RESPONSIVE ===== */
+            @media (max-width: 1040px) {
+                .app {
+                    max-width: 100%;
+                    box-shadow: none;
                 }
             }
 
-            /* First-class alert box */
-            .first-class-alert {
-                display: none;
-                background-color: #fff8e1;
-                border-left: 4px solid #ffb300;
-                border-radius: 6px;
-                padding: 15px 20px;
-                margin: 0 0 20px;
-                position: relative;
-                animation: slideDown 0.3s ease-out;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            }
-
-            .first-class-alert-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-
-            .first-class-alert-header h3 {
-                margin: 0;
-                color: #f57c00;
-                font-size: 16px;
-            }
-
-            .close-alert {
-                color: #aaa;
-                font-size: 22px;
-                font-weight: bold;
-                cursor: pointer;
-                transition: color 0.2s;
-                padding: 0 5px;
-            }
-
-            .close-alert:hover {
-                color: #f57c00;
-            }
-
-            /* Completion checklist styles */
-            .completion-checklist {
-                margin-top: 25px;
-                background-color: white;
-                border: 1px solid var(--border-color);
-                border-radius: 6px;
-                padding: 20px;
-            }
-
-            .completion-section {
-                margin-bottom: 25px;
-            }
-
-            .completion-section h3 {
-                margin-top: 0;
-                padding-bottom: 10px;
-                border-bottom: 1px solid var(--border-color);
-                color: var(--heading-color);
-            }
-
-            /* Cross-off checklist item styles */
-            .check-item {
-                padding: 8px 10px;
-                margin-bottom: 10px;
-                border-radius: 4px;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                user-select: none;
-            }
-
-            .check-item:hover {
-                background-color: #f0f7ff;
-            }
-
-            .check-item.crossed {
-                text-decoration: line-through;
-                color: #999;
-                background-color: #f5f5f5;
-            }
-
-            @keyframes slideDown {
-                from {
-                    opacity: 0;
-                    transform: translateY(-20px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            /* Responsive adjustments */
-            @media (max-width: 768px) {
-                .container {
-                    padding: 20px 15px;
-                }
-
-                .grades-three-column {
+            @media (max-width: 800px) {
+                .calc-grid {
                     grid-template-columns: 1fr;
                 }
 
-                .rpm-container {
+                .calc-panel-left {
+                    border-right: none;
+                    border-bottom: 1px solid var(--border);
+                }
+
+                #tab-calculator {
+                    overflow-y: auto;
+                }
+
+                .rpm-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .tab-content:not(#tab-calculator) {
+                    padding: 16px;
+                }
+
+                .calc-header {
                     flex-direction: column;
-                    align-items: flex-start;
+                    gap: 8px;
+                    padding: 12px 20px 6px;
                 }
 
-                .rpm-group {
-                    width: 100%;
-                    justify-content: space-between;
-                }
-
-                .semester-2-box {
+                .card-header {
                     flex-direction: column;
+                    gap: 8px;
+                }
+            }
+
+            @media (max-width: 600px) {
+                .toolbar {
+                    padding: 0 4px;
                 }
 
-                .copy-section {
+                .tab-btn {
+                    padding: 12px 10px;
+                    font-size: 13px;
+                }
+
+                .tab-btn .tab-label { display: none; }
+                .tab-icon { font-size: 18px; }
+
+                .calc-panel {
+                    padding: 12px;
+                }
+
+                .results-bar {
+                    flex-direction: column;
+                    gap: 8px;
+                    padding: 10px 12px;
+                }
+
+                .results-bar .result-chip {
                     width: 100%;
-                    min-width: unset;
-                    padding: 15px;
+                }
+
+                .calc-header {
+                    flex-direction: column;
+                    gap: 8px;
+                    padding: 12px 12px 6px;
+                }
+
+                .rubric-table {
+                    font-size: 12px;
+                }
+
+                .rubric-table th, .rubric-table td {
+                    padding: 6px 4px;
+                }
+
+                .tab-content:not(#tab-calculator) {
+                    padding: 12px;
                 }
             }
         </style>
     </head>
     <body>
-        <div class="container">
-            <div class="header">
-                <h1>DMP Grade Calculator</h1>
+        <div class="app">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <button class="tab-btn active" onclick="openTab(event, 'tab-calculator')">
+                    <span class="tab-icon">&#9881;</span><span class="tab-label">Calculator</span>
+                </button>
+                <button class="tab-btn" onclick="openTab(event, 'tab-checklist')">
+                    <span class="tab-icon">&#10003;</span><span class="tab-label">Checklist</span>
+                </button>
+                <button class="tab-btn" onclick="openTab(event, 'tab-topmark')">
+                    <span class="tab-icon">&#9733;</span><span class="tab-label">Top Mark Checklist</span>
+                </button>
+                <button class="tab-btn" onclick="openTab(event, 'tab-rubric')">
+                    <span class="tab-icon">&#8862;</span><span class="tab-label">Rubric</span>
+                </button>
+                <button class="tab-btn" onclick="openTab(event, 'tab-feedback')">
+                    <span class="tab-icon">&#9998;</span><span class="tab-label">Feedback Bank</span>
+                </button>
             </div>
 
-            <!-- Semester 2 Box -->
-            <div class="semester-box">
-                <div class="semester-title">Semester 2 Portfolio (70%)</div>
+            <!-- Content -->
+            <div class="content-area">
 
-                <!-- RPM Section -->
-                <div class="section">
-                    <div class="section-title">Recorded Progress Meetings</div>
+                <!-- TAB 1: Calculator -->
+                <div id="tab-calculator" class="tab-content active">
+                    <div class="calc-header">
+                        <div>
+                            <div class="calc-header-title">Grade Calculator</div>
+                            <div class="calc-header-subtitle">Select marks for each semester component.</div>
+                        </div>
+                        <div class="calc-resets">
+                            <button class="reset-btn" onclick="resetCalc('sem1')">Reset Sem 1</button>
+                            <button class="reset-btn" onclick="resetCalc('sem2')">Reset Sem 2</button>
+                            <button class="reset-btn" onclick="resetCalc('all')">Reset All</button>
+                        </div>
+                    </div>
 
-                    <div class="rpm-container">
-                        <div class="rpm-group">
-                            <span class="rpm-label">RPM 1:</span>
-                            <select id="rpm1" onchange="calculateResults()">
-                                <option value="0">0</option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5" selected>5</option>
-                            </select>
+                    <div class="calc-grid">
+                        <!-- Left: Semester 2 -->
+                        <div class="calc-panel calc-panel-left">
+                            <div class="panel-title">Semester 2 Portfolio <span class="weight">70%</span></div>
+
+                            <div class="sub-label">Recorded Progress Meetings</div>
+                            <div class="rpm-grid">
+                                <div class="rpm-row">
+                                    <span class="rpm-label">RPM 1</span>
+                                    <div class="rpm-btns">
+                                        <button class="rpm-btn no-rpm" data-target="rpm1" data-value="0">No</button>
+                                        <button class="rpm-btn" data-target="rpm1" data-value="1">1</button>
+                                        <button class="rpm-btn" data-target="rpm1" data-value="2">2</button>
+                                        <button class="rpm-btn" data-target="rpm1" data-value="3">3</button>
+                                        <button class="rpm-btn" data-target="rpm1" data-value="4">4</button>
+                                        <button class="rpm-btn active" data-target="rpm1" data-value="5">5</button>
+                                    </div>
+                                </div>
+                                <div class="rpm-row">
+                                    <span class="rpm-label">RPM 2</span>
+                                    <div class="rpm-btns">
+                                        <button class="rpm-btn no-rpm" data-target="rpm2" data-value="0">No</button>
+                                        <button class="rpm-btn" data-target="rpm2" data-value="1">1</button>
+                                        <button class="rpm-btn" data-target="rpm2" data-value="2">2</button>
+                                        <button class="rpm-btn active" data-target="rpm2" data-value="3">3</button>
+                                        <button class="rpm-btn" data-target="rpm2" data-value="4">4</button>
+                                        <button class="rpm-btn" data-target="rpm2" data-value="5">5</button>
+                                    </div>
+                                </div>
+                                <div class="rpm-row">
+                                    <span class="rpm-label">RPM 3</span>
+                                    <div class="rpm-btns">
+                                        <button class="rpm-btn no-rpm" data-target="rpm3" data-value="0">No</button>
+                                        <button class="rpm-btn" data-target="rpm3" data-value="1">1</button>
+                                        <button class="rpm-btn" data-target="rpm3" data-value="2">2</button>
+                                        <button class="rpm-btn" data-target="rpm3" data-value="3">3</button>
+                                        <button class="rpm-btn active" data-target="rpm3" data-value="4">4</button>
+                                        <button class="rpm-btn" data-target="rpm3" data-value="5">5</button>
+                                    </div>
+                                </div>
+                                <div class="rpm-row">
+                                    <span class="rpm-label">RPM 4</span>
+                                    <div class="rpm-btns">
+                                        <button class="rpm-btn no-rpm" data-target="rpm4" data-value="0">No</button>
+                                        <button class="rpm-btn" data-target="rpm4" data-value="1">1</button>
+                                        <button class="rpm-btn" data-target="rpm4" data-value="2">2</button>
+                                        <button class="rpm-btn" data-target="rpm4" data-value="3">3</button>
+                                        <button class="rpm-btn" data-target="rpm4" data-value="4">4</button>
+                                        <button class="rpm-btn active" data-target="rpm4" data-value="5">5</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <input type="hidden" id="rpm1" value="5" />
+                            <input type="hidden" id="rpm2" value="3" />
+                            <input type="hidden" id="rpm3" value="4" />
+                            <input type="hidden" id="rpm4" value="5" />
+
+                            <div class="sub-label">Final Submission</div>
+                            <input type="hidden" id="final" value="72" />
+
+                            <div class="grade-section-label"><span class="dot dot-green"></span> First Class (70+)</div>
+                            <div class="grade-grid">
+                                <button class="grade-btn high" data-target="final" data-value="100" data-tip="Highly unlikely, consult colleagues">100</button>
+                                <button class="grade-btn high" data-target="final" data-value="95" data-tip="Highly unlikely, consult colleagues">95</button>
+                                <button class="grade-btn high" data-target="final" data-value="92" data-tip="Highly unlikely, consult colleagues">92</button>
+                                <button class="grade-btn high" data-target="final" data-value="85" data-tip="Highly unlikely, consult colleagues">85</button>
+                                <button class="grade-btn" data-target="final" data-value="78">78</button>
+                                <button class="grade-btn" data-target="final" data-value="75">75</button>
+                                <button class="grade-btn active" data-target="final" data-value="72">72</button>
+                            </div>
+
+                            <div class="grade-section-label"><span class="dot dot-blue"></span> 2:1 / 2:2 (40&ndash;69)</div>
+                            <div class="grade-grid">
+                                <button class="grade-btn" data-target="final" data-value="68">68</button>
+                                <button class="grade-btn" data-target="final" data-value="65">65</button>
+                                <button class="grade-btn" data-target="final" data-value="62">62</button>
+                                <button class="grade-btn" data-target="final" data-value="58">58</button>
+                                <button class="grade-btn" data-target="final" data-value="55">55</button>
+                                <button class="grade-btn" data-target="final" data-value="52">52</button>
+                                <button class="grade-btn" data-target="final" data-value="48">48</button>
+                                <button class="grade-btn" data-target="final" data-value="45">45</button>
+                                <button class="grade-btn" data-target="final" data-value="42">42</button>
+                            </div>
+
+                            <div class="grade-section-label"><span class="dot dot-red"></span> Condonable &amp; Fail (0&ndash;39)</div>
+                            <div class="fail-grid" id="final-fails">
+                                <button class="grade-btn" data-target="final" data-value="38">38</button>
+                                <button class="grade-btn" data-target="final" data-value="35">35</button>
+                                <button class="grade-btn" data-target="final" data-value="32">32</button>
+                                <button class="grade-btn" data-target="final" data-value="28">28</button>
+                                <button class="grade-btn" data-target="final" data-value="25">25</button>
+                                <button class="grade-btn" data-target="final" data-value="22">22</button>
+                                <button class="grade-btn" data-target="final" data-value="18">18</button>
+                                <button class="grade-btn" data-target="final" data-value="15">15</button>
+                                <button class="grade-btn" data-target="final" data-value="12">12</button>
+                                <button class="grade-btn" data-target="final" data-value="8">8</button>
+                                <button class="grade-btn" data-target="final" data-value="5">5</button>
+                                <button class="grade-btn" data-target="final" data-value="2">2</button>
+                                <button class="grade-btn" data-target="final" data-value="0">0</button>
+                            </div>
                         </div>
 
-                        <div class="rpm-group">
-                            <span class="rpm-label">RPM 2:</span>
-                            <select id="rpm2" onchange="calculateResults()">
-                                <option value="0">0</option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3" selected>3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
-                            </select>
+                        <!-- Right: Semester 1 -->
+                        <div class="calc-panel calc-panel-right">
+                            <div class="panel-title">Semester 1 Plan <span class="weight">30%</span></div>
+                            <input type="hidden" id="plan" value="65" />
+
+                            <div class="grade-section-label"><span class="dot dot-green"></span> First Class (70+)</div>
+                            <div class="grade-grid">
+                                <button class="grade-btn high" data-target="plan" data-value="100" data-tip="Highly unlikely, consult colleagues">100</button>
+                                <button class="grade-btn high" data-target="plan" data-value="98" data-tip="Highly unlikely, consult colleagues">98</button>
+                                <button class="grade-btn high" data-target="plan" data-value="95" data-tip="Highly unlikely, consult colleagues">95</button>
+                                <button class="grade-btn high" data-target="plan" data-value="92" data-tip="Highly unlikely, consult colleagues">92</button>
+                                <button class="grade-btn high" data-target="plan" data-value="88" data-tip="Highly unlikely, consult colleagues">88</button>
+                                <button class="grade-btn high" data-target="plan" data-value="85" data-tip="Highly unlikely, consult colleagues">85</button>
+                                <button class="grade-btn high" data-target="plan" data-value="82" data-tip="Highly unlikely, consult colleagues">82</button>
+                                <button class="grade-btn" data-target="plan" data-value="78">78</button>
+                                <button class="grade-btn" data-target="plan" data-value="75">75</button>
+                                <button class="grade-btn" data-target="plan" data-value="72">72</button>
+                            </div>
+
+                            <div class="grade-section-label"><span class="dot dot-blue"></span> 2:1 / 2:2 (40&ndash;69)</div>
+                            <div class="grade-grid">
+                                <button class="grade-btn" data-target="plan" data-value="68">68</button>
+                                <button class="grade-btn active" data-target="plan" data-value="65">65</button>
+                                <button class="grade-btn" data-target="plan" data-value="62">62</button>
+                                <button class="grade-btn" data-target="plan" data-value="58">58</button>
+                                <button class="grade-btn" data-target="plan" data-value="55">55</button>
+                                <button class="grade-btn" data-target="plan" data-value="52">52</button>
+                                <button class="grade-btn" data-target="plan" data-value="48">48</button>
+                                <button class="grade-btn" data-target="plan" data-value="45">45</button>
+                                <button class="grade-btn" data-target="plan" data-value="42">42</button>
+                            </div>
+
+                            <div class="grade-section-label"><span class="dot dot-red"></span> Fail (0&ndash;39)</div>
+                            <div class="fail-grid" id="plan-fails">
+                                <button class="grade-btn" data-target="plan" data-value="38">38</button>
+                                <button class="grade-btn" data-target="plan" data-value="35">35</button>
+                                <button class="grade-btn" data-target="plan" data-value="32">32</button>
+                                <button class="grade-btn" data-target="plan" data-value="28">28</button>
+                                <button class="grade-btn" data-target="plan" data-value="25">25</button>
+                                <button class="grade-btn" data-target="plan" data-value="22">22</button>
+                                <button class="grade-btn" data-target="plan" data-value="18">18</button>
+                                <button class="grade-btn" data-target="plan" data-value="15">15</button>
+                                <button class="grade-btn" data-target="plan" data-value="12">12</button>
+                                <button class="grade-btn" data-target="plan" data-value="8">8</button>
+                                <button class="grade-btn" data-target="plan" data-value="5">5</button>
+                                <button class="grade-btn" data-target="plan" data-value="2">2</button>
+                                <button class="grade-btn" data-target="plan" data-value="0">0</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="results-bar">
+                        <div class="result-chip" id="sem2-result"></div>
+                        <div class="result-chip" id="overall-result"></div>
+                        <button class="copy-btn" id="copy-btn">Copy Sem 2</button>
+                    </div>
+                </div>
+
+                <!-- TAB 2: Checklist -->
+                <div id="tab-checklist" class="tab-content">
+                    <div class="checklist-card">
+                        <div class="card-header">
+                            <div>
+                                <h2>General Submission Checklist</h2>
+                                <div class="subtitle">Tick items as you verify them.</div>
+                            </div>
+                            <button class="reset-btn" onclick="resetChecklist('tab-checklist')">Reset</button>
                         </div>
 
-                        <div class="rpm-group">
-                            <span class="rpm-label">RPM 3:</span>
-                            <select id="rpm3" onchange="calculateResults()">
-                                <option value="0">0</option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4" selected>4</option>
-                                <option value="5">5</option>
-                            </select>
+                        <div class="progress-wrap">
+                            <div class="progress-track">
+                                <div class="progress-fill" id="progress-checklist"></div>
+                            </div>
+                            <div class="progress-milestones">
+                                <div class="milestone-marker" style="left:40%"></div>
+                                <div class="milestone-marker" style="left:70%"></div>
+                                <div class="milestone milestone-left" id="ms-checklist-below"><span class="milestone-label-below">below threshold</span></div>
+                                <div class="milestone milestone-right" id="ms-checklist-1st"><span class="milestone-label-1st">1st</span></div>
+                            </div>
                         </div>
 
-                        <div class="rpm-group">
-                            <span class="rpm-label">RPM 4:</span>
-                            <select id="rpm4" onchange="calculateResults()">
-                                <option value="0">0</option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5" selected>5</option>
-                            </select>
+                        <div class="cat-title">Report Content</div>
+                        <div class="check-item" data-group="checklist"><div class="check-box"></div><div><strong>Title Page</strong> &ndash; Student name, ID, module title, assessment title (&lsquo;Portfolio&rsquo;), project title, submission date, supervisor name, word count, and website link.</div></div>
+                        <div class="check-item" data-group="checklist"><div class="check-box"></div><div><strong>Acknowledgements</strong> <em>(optional)</em> &ndash; Thanking individuals or organisations for their support.</div></div>
+                        <div class="check-item" data-group="checklist"><div class="check-box"></div><div><strong>Abstract</strong> &ndash; Max one side of A4. A short summary of the &lsquo;story&rsquo; of the research.</div></div>
+                        <div class="check-item" data-group="checklist"><div class="check-box"></div><div><strong>Contents Page</strong> &ndash; List of report sections with page numbers.</div></div>
+                        <div class="check-item" data-group="checklist"><div class="check-box"></div><div><strong>Introduction</strong> &ndash; Research question, aim and objectives, and rationale.</div></div>
+                        <div class="check-item" data-group="checklist"><div class="check-box"></div><div><strong>Literature Review</strong> &ndash; Critical evaluation of existing research, synthesising what is known.</div></div>
+                        <div class="check-item" data-group="checklist"><div class="check-box"></div><div><strong>Research Design</strong> &ndash; Strategy, data collection/analysis methods, sampling, ethics, and limitations.</div></div>
+                        <div class="check-item" data-group="checklist"><div class="check-box"></div><div><strong>Results &amp; Discussion</strong> &ndash; Findings with charts/tables, discussion of significance, comparison with lit review, implications for objectives.</div></div>
+                        <div class="check-item" data-group="checklist"><div class="check-box"></div><div><strong>Conclusion</strong> &ndash; Outcomes in light of aim/objectives, recommendations for further research and practical recommendations.</div></div>
+                        <div class="check-item" data-group="checklist"><div class="check-box"></div><div><strong>Reference List</strong> &ndash; All sources cited using Cite Them Right Harvard.</div></div>
+                        <div class="check-item" data-group="checklist"><div class="check-box"></div><div><strong>Appendices</strong> &ndash; Numbered and titled. Completed RPM forms, unsigned consent forms, primary data material. Must be referenced in the main body.</div></div>
+
+                        <div class="cat-title">Website Content</div>
+                        <div class="check-item" data-group="checklist"><div class="check-box"></div><div><strong>Homepage</strong> &ndash; Hosts the digital media asset, brief project overview and discussion of the creative investigation.</div></div>
+                        <div class="check-item" data-group="checklist"><div class="check-box"></div><div><strong>Project Reflection Page</strong> &ndash; Reflection on research/creative process using a recognised model (e.g., Gibbs, 1988). Includes website references, Semester 1 media tests, and pre-production materials.</div></div>
+                        <div class="check-item" data-group="checklist"><div class="check-box"></div><div><strong>About Me Page</strong> &ndash; Introduction to skills, interests, and expertise. Photo optional.</div></div>
+
+                        <div class="cat-title">Submission Rules</div>
+                        <div class="check-item" data-group="checklist"><div class="check-box"></div><div><strong>Word Count</strong> &ndash; Report is 3,250 words (+/&minus;10%) excluding title page, acknowledgements, abstract, contents, appendices, reference list, and tables.</div></div>
+                        <div class="check-item" data-group="checklist"><div class="check-box"></div><div><strong>Website Citations</strong> &ndash; Website should use hyperlinks for sources, not Harvard formatting. Do not penalise for this.</div></div>
+                        <div class="check-item" data-group="checklist"><div class="check-box"></div><div><strong>Video Assets</strong> &ndash; If video essay chosen: minimum 5 minutes of original filmmaking/animation. Must not repeat the report text.</div></div>
+                        <div class="check-item" data-group="checklist"><div class="check-box"></div><div><strong>AI Boundaries</strong> &ndash; AI cannot generate written work, proofread/edit, or take creative control of the digital asset. Suspected AI core-text generation violates the brief.</div></div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: Top Mark Checklist -->
+                <div id="tab-topmark" class="tab-content">
+                    <div class="checklist-card">
+                        <div class="card-header">
+                            <div>
+                                <h2>First-Class Requirements (70+)</h2>
+                                <div class="subtitle">Before awarding a first, confirm the student meets these criteria.</div>
+                            </div>
+                            <button class="reset-btn" onclick="resetChecklist('tab-topmark')">Reset</button>
+                        </div>
+
+                        <div class="progress-wrap">
+                            <div class="progress-track">
+                                <div class="progress-fill" id="progress-topmark"></div>
+                            </div>
+                            <div class="progress-milestones">
+                                <div class="milestone-marker" style="left:40%"></div>
+                                <div class="milestone-marker" style="left:70%"></div>
+                                <div class="milestone milestone-left" id="ms-topmark-below"><span class="milestone-label-below">below threshold</span></div>
+                                <div class="milestone milestone-right" id="ms-topmark-1st"><span class="milestone-label-1st">1st</span></div>
+                            </div>
+                        </div>
+
+                        <div class="first-class-alert" id="first-class-alert">
+                            Ensure the student matches all requirements below before awarding 70+.
+                            <button class="close-alert" onclick="this.parentElement.classList.remove('show')">&times;</button>
+                        </div>
+
+                        <div class="cat-title">Report &amp; Research Quality</div>
+                        <div class="check-item" data-group="topmark"><div class="check-box"></div><div><strong>Sources</strong> &ndash; Excellent range of relevant sources with strong synthesis across report and website.</div></div>
+                        <div class="check-item" data-group="topmark"><div class="check-box"></div><div><strong>Evidence</strong> &ndash; Convincing empirical data (e.g., 3&ndash;4 interviews + 80+ survey responses for mixed methods).</div></div>
+                        <div class="check-item" data-group="topmark"><div class="check-box"></div><div><strong>Presentation</strong> &ndash; Professionally presented data (clear charts, well-formatted quotes).</div></div>
+                        <div class="check-item" data-group="topmark"><div class="check-box"></div><div><strong>Analysis</strong> &ndash; Effective triangulation and critical analysis within the context of published work.</div></div>
+                        <div class="check-item" data-group="topmark"><div class="check-box"></div><div><strong>Writing</strong> &ndash; Clear, concise, and well-structured report.</div></div>
+                        <div class="check-item" data-group="topmark"><div class="check-box"></div><div><strong>Appendices</strong> &ndash; Complete, clearly labelled, and referenced in the main body.</div></div>
+
+                        <div class="cat-title">Digital Assets &amp; Website</div>
+                        <div class="check-item" data-group="topmark"><div class="check-box"></div><div><strong>Website</strong> &ndash; Expertly customised site that communicates the project clearly and effectively.</div></div>
+                        <div class="check-item" data-group="topmark"><div class="check-box"></div><div><strong>Media Quality</strong> &ndash; High-quality digital media assets (technically and visually).</div></div>
+                        <div class="check-item" data-group="topmark"><div class="check-box"></div><div><strong>Video Assets</strong> &ndash; If applicable: minimum 5 minutes original filmmaking/animation, intensive post-production, does not repeat report text.</div></div>
+
+                        <div class="cat-title">Professionalism</div>
+                        <div class="check-item" data-group="topmark"><div class="check-box"></div><div><strong>Engagement</strong> &ndash; Outstanding engagement throughout (RPM meetings, ethics, brief adherence, organised work).</div></div>
+                        <div class="check-item" data-group="topmark"><div class="check-box"></div><div><strong>AI Compliance</strong> &ndash; No evidence of AI-generated text, AI proofreading/editing, or AI creative control of the digital asset.</div></div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: Rubric -->
+                <div id="tab-rubric" class="tab-content">
+                    <div class="checklist-card">
+                        <div class="card-header">
+                            <div>
+                                <h2>Dynamic Rubric Auto-Calculator</h2>
+                                <div class="subtitle">Click a cell in each row to generate a suggested baseline mark.</div>
+                            </div>
+                            <button class="reset-btn" onclick="resetRubric()">Reset</button>
+                        </div>
+
+                        <table class="rubric-table">
+                            <thead>
+                                <tr>
+                                    <th>Criteria</th>
+                                    <th>1st (100&ndash;86)</th>
+                                    <th>1st (85&ndash;70)</th>
+                                    <th>2:1 (69&ndash;60)</th>
+                                    <th>2:2 (59&ndash;50)</th>
+                                    <th>3rd (49&ndash;40)</th>
+                                    <th>Fail (39&ndash;0)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="rubric-row">
+                                    <td><strong>Information &amp; Sources</strong></td>
+                                    <td class="rubric-cell" data-val="92">Innovative &amp; authoritative</td>
+                                    <td class="rubric-cell" data-val="78">Persuasive &amp; meticulous</td>
+                                    <td class="rubric-cell" data-val="65">Thorough</td>
+                                    <td class="rubric-cell" data-val="55">Accurate</td>
+                                    <td class="rubric-cell" data-val="45">Adequate</td>
+                                    <td class="rubric-cell" data-val="25">Inadequate</td>
+                                </tr>
+                                <tr class="rubric-row">
+                                    <td><strong>Professionalism &amp; Self-Management</strong></td>
+                                    <td class="rubric-cell" data-val="92">Authoritative &amp; competent</td>
+                                    <td class="rubric-cell" data-val="78">Meticulous &amp; competent</td>
+                                    <td class="rubric-cell" data-val="65">Rigorously competent</td>
+                                    <td class="rubric-cell" data-val="55">Confidently competent</td>
+                                    <td class="rubric-cell" data-val="45">Competent</td>
+                                    <td class="rubric-cell" data-val="25">Insufficient</td>
+                                </tr>
+                                <tr class="rubric-row">
+                                    <td><strong>Present Ideas &amp; Communicate</strong></td>
+                                    <td class="rubric-cell" data-val="92">Authoritatively &amp; fluently</td>
+                                    <td class="rubric-cell" data-val="78">Fluently</td>
+                                    <td class="rubric-cell" data-val="65">Coherently</td>
+                                    <td class="rubric-cell" data-val="55">Clearly</td>
+                                    <td class="rubric-cell" data-val="45">Adequately</td>
+                                    <td class="rubric-cell" data-val="25">Inadequate</td>
+                                </tr>
+                                <tr class="rubric-row">
+                                    <td><strong>Harvard Referencing</strong></td>
+                                    <td class="rubric-cell" data-val="92">Authoritatively implemented</td>
+                                    <td class="rubric-cell" data-val="78">Meticulously implemented</td>
+                                    <td class="rubric-cell" data-val="65">Rigorously implemented</td>
+                                    <td class="rubric-cell" data-val="55">Accurately implemented</td>
+                                    <td class="rubric-cell" data-val="45">Adequately implemented</td>
+                                    <td class="rubric-cell" data-val="25">Limited / Inconsistent</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="rubric-result">
+                            Suggested Portfolio Mark: <span id="rubric-calc-val">Select a cell in all 4 rows&hellip;</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Final Submission Section -->
-                <div class="section">
-                    <div class="section-title">
-                        Final Submission (report and digital assets)
-                    </div>
-                    <input type="hidden" id="final" value="72" />
-
-                    <div class="grades-three-column">
-                        <div class="grade-category first-class">
-                            <h3>First Class (70-100%)</h3>
-                            <div class="marks-group">
-                                <button
-                                    class="mark-button high-mark"
-                                    data-target="final"
-                                    data-value="100"
-                                    data-tooltip="Highly unlikely, consult colleagues"
-                                >
-                                    100
-                                </button>
-                                <button
-                                    class="mark-button high-mark"
-                                    data-target="final"
-                                    data-value="95"
-                                    data-tooltip="Highly unlikely, consult colleagues"
-                                >
-                                    95
-                                </button>
-                                <button
-                                    class="mark-button high-mark"
-                                    data-target="final"
-                                    data-value="92"
-                                    data-tooltip="Highly unlikely, consult colleagues"
-                                >
-                                    92
-                                </button>
-                                <button
-                                    class="mark-button high-mark"
-                                    data-target="final"
-                                    data-value="85"
-                                    data-tooltip="Highly unlikely, consult colleagues"
-                                >
-                                    85
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="final"
-                                    data-value="78"
-                                    data-tooltip="Does the student match the first mark requirements, listed below?"
-                                >
-                                    78
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="final"
-                                    data-value="75"
-                                    data-tooltip="Does the student match the first mark requirements, listed below?"
-                                >
-                                    75
-                                </button>
-                                <button
-                                    class="mark-button active"
-                                    data-target="final"
-                                    data-value="72"
-                                    data-tooltip="Does the student match the first mark requirements, listed below?"
-                                >
-                                    72
-                                </button>
+                <!-- TAB 5: Feedback Bank -->
+                <div id="tab-feedback" class="tab-content">
+                    <div class="checklist-card">
+                        <div class="card-header">
+                            <div>
+                                <h2>Feed-Forward Statement Bank</h2>
+                                <div class="subtitle">Click a category to expand. Copy statements for student feedback sheets.</div>
                             </div>
                         </div>
 
-                        <div class="grade-category mid-range">
-                            <h3>2:1 and 2:2 (40-69%)</h3>
-                            <div class="marks-group">
-                                <button
-                                    class="mark-button"
-                                    data-target="final"
-                                    data-value="68"
-                                >
-                                    68
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="final"
-                                    data-value="65"
-                                >
-                                    65
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="final"
-                                    data-value="62"
-                                >
-                                    62
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="final"
-                                    data-value="58"
-                                >
-                                    58
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="final"
-                                    data-value="55"
-                                >
-                                    55
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="final"
-                                    data-value="52"
-                                >
-                                    52
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="final"
-                                    data-value="48"
-                                >
-                                    48
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="final"
-                                    data-value="45"
-                                >
-                                    45
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="final"
-                                    data-value="42"
-                                >
-                                    42
-                                </button>
+                        <!-- 1. Research & Literature -->
+                        <div class="fb-cat open">
+                            <div class="fb-cat-header" onclick="toggleFbCat(this)">
+                                <h3>Research, Literature &amp; Information</h3>
+                                <span class="fb-cat-arrow">&#9660;</span>
                             </div>
-                        </div>
-
-                        <div class="accordion">
-                            <button
-                                class="accordion-button"
-                                id="fail-accordion-btn"
-                            >
-                                Show Fail Marks (0-39%)
-                            </button>
-                            <div
-                                class="accordion-content"
-                                id="fail-accordion-content"
-                            >
-                                <div class="marks-group">
-                                    <button
-                                        class="mark-button"
-                                        data-target="final"
-                                        data-value="38"
-                                    >
-                                        38
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="final"
-                                        data-value="35"
-                                    >
-                                        35
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="final"
-                                        data-value="32"
-                                    >
-                                        32
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="final"
-                                        data-value="28"
-                                    >
-                                        28
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="final"
-                                        data-value="25"
-                                    >
-                                        25
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="final"
-                                        data-value="22"
-                                    >
-                                        22
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="final"
-                                        data-value="18"
-                                    >
-                                        18
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="final"
-                                        data-value="15"
-                                    >
-                                        15
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="final"
-                                        data-value="12"
-                                    >
-                                        12
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="final"
-                                        data-value="8"
-                                    >
-                                        8
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="final"
-                                        data-value="5"
-                                    >
-                                        5
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="final"
-                                        data-value="2"
-                                    >
-                                        2
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="final"
-                                        data-value="0"
-                                    >
-                                        0
-                                    </button>
+                            <div class="fb-cat-body">
+                                <div class="fb-columns">
+                                    <div class="fb-col">
+                                        <div class="fb-col-title improve">What can be improved</div>
+                                        <div class="fb-item improve-item">
+                                            <div class="fb-text" id="fb-ri1">To build a more robust literature review in future projects, aim to synthesise a wider variety of current academic sources rather than relying on descriptive summaries.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-ri1', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item improve-item">
+                                            <div class="fb-text" id="fb-ri2">Your discussion of results could be deepened by more explicitly linking your primary data findings back to the literature you reviewed earlier in the report.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-ri2', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item improve-item">
+                                            <div class="fb-text" id="fb-ri3">For future research projects, consider providing a more detailed justification of your chosen methodology and sampling strategy to strengthen the credibility of your findings.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-ri3', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item improve-item">
+                                            <div class="fb-text" id="fb-ri4">To demonstrate stronger ethical awareness in future, ensure your research design section explicitly addresses ethical approval, informed consent, and data protection considerations.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-ri4', this)">Copy</button>
+                                        </div>
+                                    </div>
+                                    <div class="fb-col">
+                                        <div class="fb-col-title praise">What you've done well</div>
+                                        <div class="fb-item praise-item">
+                                            <div class="fb-text" id="fb-rp1">Your synthesis of existing literature was excellent; your ability to critically evaluate sources rather than just describe them is a major strength to carry forward.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-rp1', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item praise-item">
+                                            <div class="fb-text" id="fb-rp2">You demonstrated an impressive, innovative approach to gathering information, establishing a highly authoritative foundation for your project.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-rp2', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item praise-item">
+                                            <div class="fb-text" id="fb-rp3">Your research design was meticulously planned, showing a deep understanding of methodology, sampling, and ethical considerations.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-rp3', this)">Copy</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Semester 1 Box -->
-            <div class="semester-box">
-                <div class="semester-title">Semester 1 Plan (30%)</div>
-
-                <div class="section">
-                    <input type="hidden" id="plan" value="65" />
-
-                    <div class="grades-three-column">
-                        <div class="grade-category first-class">
-                            <h3>First Class (70-100%)</h3>
-                            <div class="marks-group">
-                                <button
-                                    class="mark-button high-mark"
-                                    data-target="final"
-                                    data-value="100"
-                                    data-tooltip="Highly unlikely, consult colleagues"
-                                >
-                                    100
-                                </button>
-                                <button
-                                    class="mark-button high-mark"
-                                    data-target="final"
-                                    data-value="98"
-                                    data-tooltip="Highly unlikely, consult colleagues"
-                                >
-                                    98
-                                </button>
-                                <button
-                                    class="mark-button high-mark"
-                                    data-target="final"
-                                    data-value="95"
-                                    data-tooltip="Highly unlikely, consult colleagues"
-                                >
-                                    95
-                                </button>
-                                <button
-                                    class="mark-button high-mark"
-                                    data-target="final"
-                                    data-value="92"
-                                    data-tooltip="Highly unlikely, consult colleagues"
-                                >
-                                    92
-                                </button>
-                                <button
-                                    class="mark-button high-mark"
-                                    data-target="final"
-                                    data-value="88"
-                                    data-tooltip="Highly unlikely, consult colleagues"
-                                >
-                                    88
-                                </button>
-                                <button
-                                    class="mark-button high-mark"
-                                    data-target="final"
-                                    data-value="85"
-                                    data-tooltip="Highly unlikely, consult colleagues"
-                                >
-                                    85
-                                </button>
-                                <button
-                                    class="mark-button high-mark"
-                                    data-target="final"
-                                    data-value="82"
-                                    data-tooltip="Highly unlikely, consult colleagues"
-                                >
-                                    82
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="final"
-                                    data-value="78"
-                                    data-tooltip="Does the student match the first mark requirements, listed below?"
-                                >
-                                    78
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="final"
-                                    data-value="75"
-                                    data-tooltip="Does the student match the first mark requirements, listed below?"
-                                >
-                                    75
-                                </button>
-                                <button
-                                    class="mark-button active"
-                                    data-target="final"
-                                    data-value="72"
-                                    data-tooltip="Does the student match the first mark requirements, listed below?"
-                                >
-                                    72
-                                </button>
+                        <!-- 2. Analysis & Data Presentation -->
+                        <div class="fb-cat">
+                            <div class="fb-cat-header" onclick="toggleFbCat(this)">
+                                <h3>Analysis &amp; Data Presentation</h3>
+                                <span class="fb-cat-arrow">&#9660;</span>
                             </div>
-                        </div>
-
-                        <div class="grade-category mid-range">
-                            <h3>2:1 and 2:2 (40-69%)</h3>
-                            <div class="marks-group">
-                                <button
-                                    class="mark-button"
-                                    data-target="plan"
-                                    data-value="68"
-                                >
-                                    68
-                                </button>
-                                <button
-                                    class="mark-button active"
-                                    data-target="plan"
-                                    data-value="65"
-                                >
-                                    65
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="plan"
-                                    data-value="62"
-                                >
-                                    62
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="plan"
-                                    data-value="58"
-                                >
-                                    58
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="plan"
-                                    data-value="55"
-                                >
-                                    55
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="plan"
-                                    data-value="52"
-                                >
-                                    52
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="plan"
-                                    data-value="48"
-                                >
-                                    48
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="plan"
-                                    data-value="45"
-                                >
-                                    45
-                                </button>
-                                <button
-                                    class="mark-button"
-                                    data-target="plan"
-                                    data-value="42"
-                                >
-                                    42
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="accordion">
-                            <button
-                                class="accordion-button"
-                                id="fail-accordion-plan-btn"
-                            >
-                                Show Fail Marks (0-39%)
-                            </button>
-                            <div
-                                class="accordion-content"
-                                id="fail-accordion-plan-content"
-                            >
-                                <div class="marks-group">
-                                    <button
-                                        class="mark-button"
-                                        data-target="plan"
-                                        data-value="38"
-                                    >
-                                        38
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="plan"
-                                        data-value="35"
-                                    >
-                                        35
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="plan"
-                                        data-value="32"
-                                    >
-                                        32
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="plan"
-                                        data-value="28"
-                                    >
-                                        28
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="plan"
-                                        data-value="25"
-                                    >
-                                        25
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="plan"
-                                        data-value="22"
-                                    >
-                                        22
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="plan"
-                                        data-value="18"
-                                    >
-                                        18
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="plan"
-                                        data-value="15"
-                                    >
-                                        15
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="plan"
-                                        data-value="12"
-                                    >
-                                        12
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="plan"
-                                        data-value="8"
-                                    >
-                                        8
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="plan"
-                                        data-value="5"
-                                    >
-                                        5
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="plan"
-                                        data-value="2"
-                                    >
-                                        2
-                                    </button>
-                                    <button
-                                        class="mark-button"
-                                        data-target="plan"
-                                        data-value="0"
-                                    >
-                                        0
-                                    </button>
+                            <div class="fb-cat-body">
+                                <div class="fb-columns">
+                                    <div class="fb-col">
+                                        <div class="fb-col-title improve">What can be improved</div>
+                                        <div class="fb-item improve-item">
+                                            <div class="fb-text" id="fb-ai1">In future reports, consider presenting your data using clearer visual formats (labelled charts, formatted tables) to make your findings more accessible and impactful.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-ai1', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item improve-item">
+                                            <div class="fb-text" id="fb-ai2">Your analysis would benefit from greater triangulation &mdash; cross-referencing multiple data sources to build a more convincing and well-supported argument.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-ai2', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item improve-item">
+                                            <div class="fb-text" id="fb-ai3">For future projects, aim to move beyond describing your results toward critically interpreting what they mean in the context of your research question and existing literature.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-ai3', this)">Copy</button>
+                                        </div>
+                                    </div>
+                                    <div class="fb-col">
+                                        <div class="fb-col-title praise">What you've done well</div>
+                                        <div class="fb-item praise-item">
+                                            <div class="fb-text" id="fb-ap1">The way you triangulated your primary data with your literature review showed a high level of analytical maturity and critical thinking.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-ap1', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item praise-item">
+                                            <div class="fb-text" id="fb-ap2">Your use of visual elements (charts, tables, etc.) to present your findings was expertly executed, making complex data highly accessible to the reader.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-ap2', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item praise-item">
+                                            <div class="fb-text" id="fb-ap3">You drew highly insightful conclusions that directly and convincingly addressed your initial research aims and objectives.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-ap3', this)">Copy</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Results Section -->
-            <div class="results">
-                <div class="semester-2-box">
-                    <div class="semester-2-content">
-                        <p id="semester-2-text"></p>
-                    </div>
-                    <div class="copy-section" id="copy-btn">
-                        <span class="copy-btn-text">Copy Semester 2 Mark</span>
-                    </div>
-                </div>
-
-                <div class="overall-box">
-                    <p id="overall-text"></p>
-                </div>
-            </div>
-
-            <!-- Completion Checklist Section - Always Visible -->
-            <div class="completion-checklist">
-                <h2 style="margin-top: 0; color: var(--heading-color)">
-                    Assignment Completion Checklist
-                </h2>
-                <p>Click on items to mark them as completed.</p>
-
-                <div class="completion-section">
-                    <h3>🔹 Report Content</h3>
-
-                    <div class="check-item">
-                        <strong>Title Page</strong> – Include your name, student
-                        ID, module, assessment title, project title, submission
-                        date, supervisor's name, word count, and link to your
-                        website.
-                    </div>
-
-                    <div class="check-item">
-                        <strong>Acknowledgements</strong> <em>(optional)</em> –
-                        Thank individuals or organisations who supported your
-                        project.
-                    </div>
-
-                    <div class="check-item">
-                        <strong>Abstract</strong> – A one-page summary of your
-                        research story as presented in the final report.
-                    </div>
-
-                    <div class="check-item">
-                        <strong>Contents Page</strong> – List of report sections
-                        with page numbers.
-                    </div>
-
-                    <div class="check-item">
-                        <strong>Introduction</strong> – Overview of the project,
-                        including your research question, aim, objectives, and
-                        rationale.
-                    </div>
-
-                    <div class="check-item">
-                        <strong>Literature Review</strong> – Overview of
-                        relevant literature that contextualises your project and
-                        shows subject knowledge.
-                    </div>
-
-                    <div class="check-item">
-                        <strong>Research Design</strong> – Explanation of your
-                        research strategy, methods, sampling, ethics, and
-                        limitations.
-                    </div>
-
-                    <div class="check-item">
-                        <strong>Results</strong> – Presentation of findings
-                        using charts, tables, word clouds, etc.
-                    </div>
-
-                    <div class="check-item">
-                        <strong>Discussion</strong> – Interpretation of
-                        findings, comparison across data sets and literature,
-                        and discussion of significance.
-                    </div>
-
-                    <div class="check-item">
-                        <strong>Conclusion</strong> – Summary of key findings in
-                        relation to aims/objectives, with limitations and
-                        recommendations for future research and practice.
-                    </div>
-
-                    <div class="check-item">
-                        <strong>Reference List</strong> – All cited sources,
-                        formatted using <em>Cite Them Right</em>.
-                    </div>
-
-                    <div class="check-item">
-                        <strong>Appendices</strong> – Include RPM forms, consent
-                        documents, primary data materials, and ensure all are
-                        numbered and referenced properly.
-                    </div>
-                </div>
-
-                <div class="completion-section">
-                    <h3>🔹 Website Content</h3>
-
-                    <div class="check-item">
-                        <strong>Homepage</strong> – Embed your digital media
-                        asset (5–10 min video or 6–10 image portfolio) and
-                        describe your creative investigation.
-                    </div>
-
-                    <div class="check-item">
-                        <strong>Project Reflection Page</strong> – Reflect on
-                        both research and creative aspects: what you did, how,
-                        what worked/didn't, lessons learned, and your
-                        professional development plan. Use a reflective model
-                        (e.g., Gibbs, 1988).
-                    </div>
-
-                    <div class="check-item">
-                        <strong>About Me Page</strong> – Introduce yourself,
-                        your skills, interests, and experience. You may include
-                        a photo (optional).
-                    </div>
-                </div>
-
-                <div class="completion-section" id="first-class-requirements">
-                    <h3>🔹 First-Class Grade Requirements (70+)</h3>
-
-                    <!-- First class alert notification positioned exactly below the heading -->
-                    <div class="first-class-alert" id="first-class-alert">
-                        <div class="first-class-alert-header">
-                            <h3>
-                                Before awarding a first, make sure the student
-                                matches the requirements below
-                            </h3>
-                            <span class="close-alert">&times;</span>
+                        <!-- 3. Digital Media Asset -->
+                        <div class="fb-cat">
+                            <div class="fb-cat-header" onclick="toggleFbCat(this)">
+                                <h3>Digital Media Asset (Video &amp; Photography)</h3>
+                                <span class="fb-cat-arrow">&#9660;</span>
+                            </div>
+                            <div class="fb-cat-body">
+                                <div class="fb-columns">
+                                    <div class="fb-col">
+                                        <div class="fb-col-title improve">What can be improved</div>
+                                        <div class="fb-item improve-item">
+                                            <div class="fb-text" id="fb-di1">Consider expanding your digital media asset in future projects to fully explore the topic within the requested timeframe (e.g., the 5-minute video minimum) and showcase your storytelling capabilities.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-di1', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item improve-item">
+                                            <div class="fb-text" id="fb-di2">To improve web readability in future digital portfolios, pay closer attention to typography choices and ensure all references are hyperlinked rather than written in Harvard style.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-di2', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item improve-item">
+                                            <div class="fb-text" id="fb-di3">For future website projects, focus on clear navigation and consistent visual design to ensure the site effectively communicates the project to a non-academic audience.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-di3', this)">Copy</button>
+                                        </div>
+                                    </div>
+                                    <div class="fb-col">
+                                        <div class="fb-col-title praise">What you've done well</div>
+                                        <div class="fb-item praise-item">
+                                            <div class="fb-text" id="fb-dp1">Your digital media asset showed exceptional creativity and technical skill, particularly highlighting your strong capabilities in art direction and post-production.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-dp1', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item praise-item">
+                                            <div class="fb-text" id="fb-dp2">You successfully used your digital asset to tell an independent, compelling story about your topic, avoiding the common pitfall of simply repeating your written report.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-dp2', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item praise-item">
+                                            <div class="fb-text" id="fb-dp3">The pacing, visual quality, and overall execution of your digital media asset demonstrated a highly professional standard of digital storytelling.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-dp3', this)">Copy</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="check-item">
-                        <strong>Sources</strong> – Excellent range of relevant
-                        sources with strong synthesis across report and website.
-                    </div>
+                        <!-- 4. Website & Reflection -->
+                        <div class="fb-cat">
+                            <div class="fb-cat-header" onclick="toggleFbCat(this)">
+                                <h3>Website Design &amp; Professional Reflection</h3>
+                                <span class="fb-cat-arrow">&#9660;</span>
+                            </div>
+                            <div class="fb-cat-body">
+                                <div class="fb-columns">
+                                    <div class="fb-col">
+                                        <div class="fb-col-title improve">What can be improved</div>
+                                        <div class="fb-item improve-item">
+                                            <div class="fb-text" id="fb-wi1">To deepen your professional development analysis, explicitly structure future reflections using an established academic framework such as Gibbs&rsquo; reflective cycle (1988).</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-wi1', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item improve-item">
+                                            <div class="fb-text" id="fb-wi2">In future submissions, ensure the abstract succinctly captures the full &lsquo;story&rsquo; of your research within the one-page limit to give readers a clear overview.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-wi2', this)">Copy</button>
+                                        </div>
+                                    </div>
+                                    <div class="fb-col">
+                                        <div class="fb-col-title praise">What you've done well</div>
+                                        <div class="fb-item praise-item">
+                                            <div class="fb-text" id="fb-wp1">The art direction and usability of your website were highly effective, presenting your academic project in a beautifully accessible way for a wider digital audience.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-wp1', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item praise-item">
+                                            <div class="fb-text" id="fb-wp2">You made excellent choices regarding web typography and layout, resulting in a highly readable and engaging user experience.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-wp2', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item praise-item">
+                                            <div class="fb-text" id="fb-wp3">Your project reflection was deeply insightful. Your thorough application of a formal reflective model demonstrates strong self-awareness and professional growth.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-wp3', this)">Copy</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                    <div class="check-item">
-                        <strong>Evidence</strong> – Convincing empirical data
-                        (e.g., 3–4 interviews + 80+ survey responses for mixed
-                        methods).
-                    </div>
+                        <!-- 5. Academic Writing -->
+                        <div class="fb-cat">
+                            <div class="fb-cat-header" onclick="toggleFbCat(this)">
+                                <h3>Academic Writing &amp; Argumentation</h3>
+                                <span class="fb-cat-arrow">&#9660;</span>
+                            </div>
+                            <div class="fb-cat-body">
+                                <div class="fb-columns">
+                                    <div class="fb-col">
+                                        <div class="fb-col-title improve">What can be improved</div>
+                                        <div class="fb-item improve-item">
+                                            <div class="fb-text" id="fb-wi3">To elevate your academic writing, work on developing a more critical and analytical tone throughout, rather than a purely descriptive one. Ask &lsquo;why does this matter?&rsquo; at every stage.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-wi3', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item improve-item">
+                                            <div class="fb-text" id="fb-wi4">In future reports, ensure each paragraph has a clear topic sentence and flows logically to the next, guiding the reader through your argument without ambiguity.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-wi4', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item improve-item">
+                                            <div class="fb-text" id="fb-wi5">Your conclusion would be strengthened by explicitly revisiting your original research aim and objectives, and clearly stating what was achieved and what remains for further investigation.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-wi5', this)">Copy</button>
+                                        </div>
+                                    </div>
+                                    <div class="fb-col">
+                                        <div class="fb-col-title praise">What you've done well</div>
+                                        <div class="fb-item praise-item">
+                                            <div class="fb-text" id="fb-wp4">The report was written fluently and authoritatively, maintaining an exceptional grasp of academic tone from start to finish.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-wp4', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item praise-item">
+                                            <div class="fb-text" id="fb-wp5">Your implementation of &lsquo;Cite Them Right&rsquo; Harvard referencing was meticulous, reflecting a rigorous and professional approach to academic integrity.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-wp5', this)">Copy</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                    <div class="check-item">
-                        <strong>Presentation</strong> – Professionally presented
-                        data (clear charts, well-formatted quotes).
-                    </div>
+                        <!-- 6. Professionalism & Submission -->
+                        <div class="fb-cat">
+                            <div class="fb-cat-header" onclick="toggleFbCat(this)">
+                                <h3>Professionalism &amp; Submission</h3>
+                                <span class="fb-cat-arrow">&#9660;</span>
+                            </div>
+                            <div class="fb-cat-body">
+                                <div class="fb-columns">
+                                    <div class="fb-col">
+                                        <div class="fb-col-title improve">What can be improved</div>
+                                        <div class="fb-item improve-item">
+                                            <div class="fb-text" id="fb-pi1">For future independent projects, remember that including full administrative documentation (completed RPM forms, unsigned participant consent forms) is vital for demonstrating professional practice.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-pi1', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item improve-item">
+                                            <div class="fb-text" id="fb-pi2">To further develop your professional practice, aim to engage more proactively with the supervision process &mdash; coming to RPM meetings with prepared questions and clear progress updates.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-pi2', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item improve-item">
+                                            <div class="fb-text" id="fb-pi3">In future projects, be mindful of the boundaries around AI tool usage. The brief clearly states AI must not generate, proofread, or take creative control of your work &mdash; ensure your submission reflects your own intellectual effort throughout.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-pi3', this)">Copy</button>
+                                        </div>
+                                    </div>
+                                    <div class="fb-col">
+                                        <div class="fb-col-title praise">What you've done well</div>
+                                        <div class="fb-item praise-item">
+                                            <div class="fb-text" id="fb-pp1">Your consistent engagement with the RPM process and strict adherence to the project brief demonstrated an outstanding level of professional practice and self-management.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-pp1', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item praise-item">
+                                            <div class="fb-text" id="fb-pp2">For future professional reports, ensure all structural elements (title page, word count, and contents page) are fully complete to effectively guide your reader.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-pp2', this)">Copy</button>
+                                        </div>
+                                        <div class="fb-item praise-item">
+                                            <div class="fb-text" id="fb-pp3">To strengthen your academic presentation in the future, carefully proofread to ensure formatting constraints (word counts, page limits) are strictly observed.</div>
+                                            <button class="fb-copy" onclick="copyFB('fb-pp3', this)">Copy</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                    <div class="check-item">
-                        <strong>Analysis</strong> – Effective triangulation and
-                        critical analysis within the context of published work.
-                    </div>
-
-                    <div class="check-item">
-                        <strong>Writing</strong> – Clear, concise, and
-                        well-structured report.
-                    </div>
-
-                    <div class="check-item">
-                        <strong>Appendices</strong> – Complete, clearly
-                        labelled, and referenced.
-                    </div>
-
-                    <div class="check-item">
-                        <strong>Website</strong> – Expertly customised site that
-                        communicates the project clearly and effectively.
-                    </div>
-
-                    <div class="check-item">
-                        <strong>Media</strong> – High-quality digital media
-                        assets (technically and visually).
-                    </div>
-
-                    <div class="check-item">
-                        <strong>Professionalism</strong> – Outstanding
-                        engagement throughout (e.g., RPM meetings, ethics, brief
-                        adherence, organised work).
                     </div>
                 </div>
+
             </div>
         </div>
 
-        <div class="toast" id="toast">Semester 2 Mark copied to clipboard!</div>
+        <div class="toast" id="toast">Copied to clipboard!</div>
 
         <script>
-            // Stepped mark values
-            const steppedMarks = [
-                100,
-                98,
-                95,
-                92,
-                88,
-                85,
-                82,
-                78,
-                75,
-                72, // 1st
-                68,
-                65,
-                62, // 2:1
-                58,
-                55,
-                52, // 2:2
-                48,
-                45,
-                42, // 3rd
-                38,
-                35,
-                32, // Condonable Fail
-                28,
-                25,
-                22,
-                18,
-                15,
-                12,
-                8,
-                5,
-                2,
-                0, // Fail
-            ];
+            var steppedMarks = [100,98,95,92,88,85,82,78,75,72,68,65,62,58,55,52,48,45,42,38,35,32,28,25,22,18,15,12,8,5,2,0];
 
-            // Initialize when the DOM is fully loaded
-            document.addEventListener("DOMContentLoaded", function () {
-                // Initial calculation
+            document.addEventListener("DOMContentLoaded", function() {
                 calculateResults();
-
-                // Setup mark button click handlers
-                setupMarkButtonListeners();
-
-                // Setup accordion functionality
-                setupAccordionListeners();
-
-                // Setup checklist item click handlers
-                setupChecklistItemListeners();
-
-                // Setup close alert button
-                setupAlertCloseButton();
-
-                // Setup copy button
-                setupCopyButton();
-
-                // Display first-class alert if a first-class mark is already selected
-                displayFirstClassAlertIfNeeded();
+                setupGradeButtons();
+                setupRpmButtons();
+                setupChecklists();
+                setupRubric();
+                setupCopyBtn();
+                showFirstClassAlertIfNeeded();
             });
 
-            // Calculate and display the results
-            function calculateResults() {
-                // Get input values
-                const rpm1 = parseFloat(document.getElementById("rpm1").value);
-                const rpm2 = parseFloat(document.getElementById("rpm2").value);
-                const rpm3 = parseFloat(document.getElementById("rpm3").value);
-                const rpm4 = parseFloat(document.getElementById("rpm4").value);
-                const finalSubmission = parseFloat(
-                    document.getElementById("final").value,
-                );
-                const plan = parseFloat(document.getElementById("plan").value);
-
-                // Calculate total RPM
-                const totalRPM = rpm1 + rpm2 + rpm3 + rpm4;
-                const rpmPercentage = (totalRPM / 20) * 100;
-
-                // Calculate Semester 2 mark
-                const sem2Raw = rpmPercentage * 0.1 + finalSubmission * 0.9;
-                const sem2Stepped = getSteppedMark(sem2Raw);
-
-                // Calculate overall module mark (NOT stepped)
-                const overallMark = plan * 0.3 + sem2Stepped * 0.7;
-                const roundedOverall = Math.round(overallMark);
-
-                // Create separate explanations for each box
-                const semester2Explanation = `Semester 2 Mark: (RPMs ${rpmPercentage.toFixed(2)} × 0.1) + (Portfolio ${finalSubmission} × 0.9) = ${(rpmPercentage * 0.1).toFixed(1)} + ${(finalSubmission * 0.9).toFixed(1)} = ${sem2Raw.toFixed(2)} (stepped to ${sem2Stepped})`;
-
-                const overallExplanation = `Overall Mark: (Semester 1 Plan Mark ${plan} × 0.3) + (Semester 2 Mark ${sem2Stepped} × 0.7) = ${(plan * 0.3).toFixed(1)} + ${(sem2Stepped * 0.7).toFixed(1)} = <strong>${roundedOverall}</strong>`;
-
-                document.getElementById("semester-2-text").innerHTML =
-                    semester2Explanation;
-                document.getElementById("overall-text").innerHTML =
-                    overallExplanation;
-            }
-
-            // Find the closest stepped mark value
-            function getSteppedMark(mark) {
-                let closest = steppedMarks[0];
-                let minDiff = Math.abs(mark - closest);
-
-                for (let i = 1; i < steppedMarks.length; i++) {
-                    const diff = Math.abs(mark - steppedMarks[i]);
-                    if (diff < minDiff) {
-                        minDiff = diff;
-                        closest = steppedMarks[i];
-                    }
+            function getStepped(mark) {
+                var closest = steppedMarks[0], minDiff = Math.abs(mark - closest);
+                for (var i = 1; i < steppedMarks.length; i++) {
+                    var d = Math.abs(mark - steppedMarks[i]);
+                    if (d < minDiff) { minDiff = d; closest = steppedMarks[i]; }
                 }
-
                 return closest;
             }
 
-            // Setup mark button click listeners
-            function setupMarkButtonListeners() {
-                document.querySelectorAll(".mark-button").forEach((button) => {
-                    button.addEventListener("click", function () {
-                        const target = this.getAttribute("data-target");
-                        const value = parseInt(this.getAttribute("data-value"));
+            function calculateResults() {
+                var rpm1 = +document.getElementById("rpm1").value;
+                var rpm2 = +document.getElementById("rpm2").value;
+                var rpm3 = +document.getElementById("rpm3").value;
+                var rpm4 = +document.getElementById("rpm4").value;
+                var fin = +document.getElementById("final").value;
+                var plan = +document.getElementById("plan").value;
 
-                        // Find all buttons targeting the same input and remove active class
-                        document
-                            .querySelectorAll(
-                                `.mark-button[data-target="${target}"]`,
-                            )
-                            .forEach((btn) => {
-                                btn.classList.remove("active");
-                            });
+                var rpmPct = ((rpm1 + rpm2 + rpm3 + rpm4) / 20) * 100;
+                var sem2Raw = rpmPct * 0.1 + fin * 0.9;
+                var sem2 = getStepped(sem2Raw);
+                var overall = Math.round(plan * 0.3 + sem2 * 0.7);
 
-                        // Add active class to clicked button
+                document.getElementById("sem2-result").innerHTML =
+                    "<strong>Sem 2:</strong> RPMs " + rpmPct.toFixed(0) + "% &times; 0.1 + Portfolio " + fin + " &times; 0.9 = " + sem2Raw.toFixed(1) + " &rarr; <strong>" + sem2 + "</strong>";
+                document.getElementById("overall-result").innerHTML =
+                    "<strong>Overall:</strong> Plan " + plan + " &times; 0.3 + Sem 2 " + sem2 + " &times; 0.7 = <strong>" + overall + "</strong>";
+            }
+
+            function setupGradeButtons() {
+                document.querySelectorAll(".grade-btn").forEach(function(btn) {
+                    btn.addEventListener("click", function() {
+                        var t = this.getAttribute("data-target");
+                        var v = +this.getAttribute("data-value");
+                        document.querySelectorAll('.grade-btn[data-target="' + t + '"]').forEach(function(b) { b.classList.remove("active"); });
                         this.classList.add("active");
-
-                        // Update hidden input value
-                        document.getElementById(target).value = value;
-
-                        // Show first class alert when a first class mark is selected in semester 2
-                        if (value >= 70 && target === "final") {
-                            document.getElementById(
-                                "first-class-alert",
-                            ).style.display = "block";
-                        } else if (value < 70 && target === "final") {
-                            document.getElementById(
-                                "first-class-alert",
-                            ).style.display = "none";
-                        }
-
-                        // Recalculate results
+                        document.getElementById(t).value = v;
+                        if (t === "final") showFirstClassAlertIfNeeded();
                         calculateResults();
                     });
                 });
             }
 
-            // Setup accordion functionality
-            function setupAccordionListeners() {
-                document
-                    .getElementById("fail-accordion-btn")
-                    .addEventListener("click", function () {
-                        this.classList.toggle("active");
-                        document
-                            .getElementById("fail-accordion-content")
-                            .classList.toggle("show");
-                    });
-
-                document
-                    .getElementById("fail-accordion-plan-btn")
-                    .addEventListener("click", function () {
-                        this.classList.toggle("active");
-                        document
-                            .getElementById("fail-accordion-plan-content")
-                            .classList.toggle("show");
-                    });
-            }
-
-            // Setup checklist item click listeners
-            function setupChecklistItemListeners() {
-                document.querySelectorAll(".check-item").forEach((item) => {
-                    item.addEventListener("click", function () {
-                        this.classList.toggle("crossed");
+            function setupRpmButtons() {
+                document.querySelectorAll(".rpm-btn").forEach(function(btn) {
+                    btn.addEventListener("click", function() {
+                        var t = this.getAttribute("data-target");
+                        var v = this.getAttribute("data-value");
+                        document.querySelectorAll('.rpm-btn[data-target="' + t + '"]').forEach(function(b) { b.classList.remove("active"); });
+                        this.classList.add("active");
+                        document.getElementById(t).value = v;
+                        calculateResults();
                     });
                 });
             }
 
-            // Setup alert close button
-            function setupAlertCloseButton() {
-                document
-                    .querySelector(".close-alert")
-                    .addEventListener("click", function () {
-                        document.getElementById(
-                            "first-class-alert",
-                        ).style.display = "none";
+            function setupChecklists() {
+                document.querySelectorAll(".check-item").forEach(function(item) {
+                    item.addEventListener("click", function() {
+                        this.classList.toggle("checked");
+                        updateProgress(this.getAttribute("data-group"));
                     });
+                });
             }
 
-            // Setup copy button functionality
-            function setupCopyButton() {
-                document
-                    .getElementById("copy-btn")
-                    .addEventListener("click", copyExplanation);
-            }
+            function updateProgress(group) {
+                var items = document.querySelectorAll('.check-item[data-group="' + group + '"]');
+                var total = items.length;
+                var checked = document.querySelectorAll('.check-item[data-group="' + group + '"].checked').length;
+                var pct = total > 0 ? (checked / total) * 100 : 0;
 
-            // Copy explanation text to clipboard
-            function copyExplanation() {
-                const fullText =
-                    document.getElementById("semester-2-text").innerText;
+                var fill = document.getElementById("progress-" + group);
+                if (!fill) return;
 
-                // Create a temporary textarea element
-                const textarea = document.createElement("textarea");
-                textarea.value = fullText;
-                textarea.style.position = "fixed"; // Prevent scrolling
-                document.body.appendChild(textarea);
-                textarea.select();
+                fill.style.width = pct + "%";
+                fill.classList.remove("low", "high");
 
-                try {
-                    document.execCommand("copy");
-                    showToast();
-                } catch (err) {
-                    console.error("Failed to copy text: ", err);
-                    alert("Failed to copy text to clipboard");
+                var ms1st = document.getElementById("ms-" + group + "-1st");
+                var msBelow = document.getElementById("ms-" + group + "-below");
+
+                if (pct >= 70) {
+                    fill.classList.add("high");
+                    if (ms1st) ms1st.classList.add("visible");
+                    if (msBelow) msBelow.classList.remove("visible");
+                } else if (pct < 40 && pct > 0) {
+                    fill.classList.add("low");
+                    if (ms1st) ms1st.classList.remove("visible");
+                    if (msBelow) msBelow.classList.add("visible");
+                } else {
+                    if (ms1st) ms1st.classList.remove("visible");
+                    if (msBelow) msBelow.classList.remove("visible");
                 }
-
-                document.body.removeChild(textarea);
             }
 
-            // Show toast notification
+            function resetChecklist(tabId) {
+                var tab = document.getElementById(tabId);
+                tab.querySelectorAll(".check-item").forEach(function(item) {
+                    item.classList.remove("checked");
+                });
+                var group = tabId === "tab-checklist" ? "checklist" : "topmark";
+                updateProgress(group);
+            }
+
+            function resetRubric() {
+                document.querySelectorAll(".rubric-cell.selected").forEach(function(c) { c.classList.remove("selected"); });
+                var el = document.getElementById("rubric-calc-val");
+                el.innerHTML = "Select a cell in all 4 rows&hellip;";
+                el.style.color = "var(--text-sec)";
+            }
+
+            function resetCalc(mode) {
+                var fields;
+                if (mode === "sem2") {
+                    fields = ["rpm1","rpm2","rpm3","rpm4","final"];
+                } else if (mode === "sem1") {
+                    fields = ["plan"];
+                } else {
+                    fields = ["rpm1","rpm2","rpm3","rpm4","final","plan"];
+                }
+                fields.forEach(function(id) {
+                    document.getElementById(id).value = "0";
+                    document.querySelectorAll('[data-target="' + id + '"]').forEach(function(btn) {
+                        btn.classList.remove("active");
+                    });
+                });
+                showFirstClassAlertIfNeeded();
+                calculateResults();
+            }
+
+            function showFirstClassAlertIfNeeded() {
+                var v = +document.getElementById("final").value;
+                var el = document.getElementById("first-class-alert");
+                if (v >= 70) el.classList.add("show");
+                else el.classList.remove("show");
+            }
+
+            function setupCopyBtn() {
+                document.getElementById("copy-btn").addEventListener("click", function() {
+                    var text = document.getElementById("sem2-result").innerText;
+                    copyText(text);
+                });
+            }
+
+            function copyText(text) {
+                var ta = document.createElement("textarea");
+                ta.value = text;
+                ta.style.position = "fixed";
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand("copy"); showToast(); } catch(e) {}
+                document.body.removeChild(ta);
+            }
+
             function showToast() {
-                const toast = document.getElementById("toast");
-                toast.className = "toast show";
-                setTimeout(() => {
-                    toast.className = toast.className.replace("show", "");
-                }, 3000);
+                var t = document.getElementById("toast");
+                t.className = "toast show";
+                setTimeout(function() { t.className = "toast"; }, 2500);
             }
 
-            // Display first-class alert if a first-class mark is already selected
-            function displayFirstClassAlertIfNeeded() {
-                const initialFinalValue = parseInt(
-                    document.getElementById("final").value,
-                );
-                if (initialFinalValue >= 70) {
-                    document.getElementById("first-class-alert").style.display =
-                        "block";
+            function openTab(evt, tabName) {
+                document.querySelectorAll(".tab-content").forEach(function(t) { t.classList.remove("active"); });
+                document.querySelectorAll(".tab-btn").forEach(function(b) { b.classList.remove("active"); });
+                document.getElementById(tabName).classList.add("active");
+                evt.currentTarget.classList.add("active");
+            }
+
+            function setupRubric() {
+                document.querySelectorAll(".rubric-row").forEach(function(row) {
+                    var cells = row.querySelectorAll(".rubric-cell");
+                    cells.forEach(function(cell) {
+                        cell.addEventListener("click", function() {
+                            cells.forEach(function(c) { c.classList.remove("selected"); });
+                            this.classList.add("selected");
+                            calcRubric();
+                        });
+                    });
+                });
+            }
+
+            function calcRubric() {
+                var sel = document.querySelectorAll(".rubric-cell.selected");
+                var el = document.getElementById("rubric-calc-val");
+                if (sel.length === 4) {
+                    var total = 0;
+                    sel.forEach(function(c) { total += +c.getAttribute("data-val"); });
+                    el.innerHTML = Math.round(total / 4) + "%";
+                    el.style.color = "var(--heading)";
+                } else {
+                    el.innerHTML = "Select a cell in all 4 rows&hellip;";
+                    el.style.color = "var(--text-sec)";
                 }
+            }
+
+            function copyFB(id, btn) {
+                var text = document.getElementById(id).innerText;
+                copyText(text);
+                btn.classList.add("copied");
+                var orig = btn.innerText;
+                btn.innerText = "Copied!";
+                setTimeout(function() { btn.classList.remove("copied"); btn.innerText = orig; }, 2000);
+            }
+
+            function toggleFbCat(header) {
+                header.parentElement.classList.toggle("open");
             }
         </script>
     </body>
